@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTS Icon Generator (Color Groups)</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: sans-serif;
+            gap: 20px;
+        }
+
+        canvas {
+            box-shadow: 0 0 50px rgba(157, 78, 221, 0.5);
+            border-radius: 20%;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #9D4EDD, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Click Image or Button to Download</h1>
+    <canvas id="iconCanvas" width="512" height="512"></canvas>
+    <button onclick="downloadIcon()">Download icon-512.png</button>
+    <button onclick="draw()">🎲 Randomize Layout</button>
+    <p>Color Groups: BTS (Gold) / ARMY (Silver/Purple)</p>
+
+    <script>
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const cx = width / 2;
+        const cy = height / 2;
+
+        const bgImage = new Image();
+        bgImage.src = './ai_background.png';
+
+        bgImage.onload = () => {
+            draw();
+        };
+
+        bgImage.onerror = () => {
+            draw(true);
+        }
+
+        function draw(isFallback = false) {
+
+            // 1. Draw Background
+            if (isFallback) {
+                const gradient = ctx.createRadialGradient(cx, cy * 0.6, 0, cx, cy, width);
+                gradient.addColorStop(0, '#5a189a');
+                gradient.addColorStop(0.4, '#240046');
+                gradient.addColorStop(1, '#000000');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+            } else {
+                ctx.drawImage(bgImage, 0, 0, width, height);
+            }
+
+            // 2. Clear Shield Interior
+            ctx.save();
+            ctx.beginPath();
+
+            const shieldScale = 0.88;
+
+            ctx.moveTo(cx - 100 * shieldScale, cy - 90 * shieldScale);
+            ctx.lineTo(cx + 100 * shieldScale, cy - 90 * shieldScale);
+            ctx.lineTo(cx + 100 * shieldScale, cy + 20 * shieldScale);
+            ctx.quadraticCurveTo(cx, cy + 130 * shieldScale, cx - 100 * shieldScale, cy + 20 * shieldScale);
+            ctx.lineTo(cx - 100 * shieldScale, cy - 90 * shieldScale);
+            ctx.closePath();
+
+            const maskGradient = ctx.createLinearGradient(cx, cy - 100, cx, cy + 150);
+            maskGradient.addColorStop(0, '#1a0b2e');
+            maskGradient.addColorStop(1, '#050010');
+
+            ctx.fillStyle = maskGradient;
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 20;
+            ctx.fill();
+
+            // Set Clip
+            ctx.clip();
+
+            // 3. Color Logic & Placement
+            // BTS = Gold Shades
+            // ARMY = Silver/Purple Shades
+
+            const btsChars = ['B', 'T', 'S'];
+            const armyChars = ['A', 'R', 'M', 'Y'];
+
+            const btsColors = ['#FFD700', '#FDB931', '#D4AF37', '#FFC125']; // Gold
+            // const armyColors = ['#FFFFFF', '#E0E0E0', '#D8BFD8', '#E6E6FA'];     // Silver/Light Purple
+            const armyColors = ['#FFFFFF', '#E0AAFF', '#D8BFD8', '#F8F8FF']; // White/Lilac
+
+            const allChars = [];
+            btsChars.forEach(c => allChars.push({ char: c, type: 'bts' }));
+            armyChars.forEach(c => allChars.push({ char: c, type: 'army' }));
+
+            // Initial Shuffle for draw order
+            allChars.sort(() => Math.random() - 0.5);
+
+            const placedItems = [];
+
+            allChars.forEach((item) => {
+                let bestX = cx, bestY = cy, bestRot = 0, bestSize = 60;
+                let minOverlap = Infinity;
+
+                for (let i = 0; i < 40; i++) {
+                    const spreadX = 140;
+                    const spreadY = 160;
+
+                    const x = cx + (Math.random() - 0.5) * spreadX;
+                    const y = cy + (Math.random() - 0.5) * spreadY - 10;
+
+                    // BTS slightly bigger?
+                    let sizeBase = (item.type === 'bts') ? 70 : 60;
+                    const size = sizeBase + Math.random() * 40;
+                    const rot = (Math.random() - 0.5) * 1.0;
+
+                    let currentOverlap = 0;
+
+                    // 1. Collision with others
+                    placedItems.forEach(pItem => {
+                        const dx = x - pItem.x;
+                        const dy = y - pItem.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const radiusSum = (size + pItem.size) * 0.45;
+                        if (dist < radiusSum) {
+                            currentOverlap += (radiusSum - dist) * 2;
+                        }
+                    });
+
+                    // 2. Collision with Shield Edges
+                    if (x - size / 2 < cx - 110) currentOverlap += 500;
+                    if (x + size / 2 > cx + 110) currentOverlap += 500;
+                    if (y - size / 2 < cy - 100) currentOverlap += 500;
+
+                    if (y > cy) {
+                        const dyVal = y - cy;
+                        const maxDx = 110 - (dyVal * 0.6);
+                        if (Math.abs(x - cx) + size / 3 > maxDx) currentOverlap += 500;
+                    }
+
+                    if (currentOverlap < minOverlap) {
+                        minOverlap = currentOverlap;
+                        bestX = x; bestY = y; bestRot = rot; bestSize = size;
+                    }
+                    if (currentOverlap === 0) break;
+                }
+
+                placedItems.push({ x: bestX, y: bestY, size: bestSize });
+
+                ctx.save();
+                ctx.translate(bestX, bestY);
+                ctx.rotate(bestRot);
+
+                ctx.font = `900 ${bestSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Color Selection
+                let color;
+                if (item.type === 'bts') {
+                    color = btsColors[Math.floor(Math.random() * btsColors.length)];
+                    ctx.shadowColor = 'rgba(255, 215, 0, 0.5)'; // Gold glow
+                } else {
+                    color = armyColors[Math.floor(Math.random() * armyColors.length)];
+                    ctx.shadowColor = 'rgba(157, 78, 221, 0.5)'; // Purple glow
+                }
+
+                ctx.fillStyle = color;
+
+                // Outline
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+                ctx.strokeText(item.char, 0, 0);
+
+                ctx.shadowBlur = 15;
+
+                ctx.fillText(item.char, 0, 0);
+                ctx.restore();
+            });
+
+            ctx.restore(); // Remove Clip
+        }
+
+        function downloadIcon() {
+            const link = document.createElement('a');
+            link.download = 'icon-512.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+
+</html>
