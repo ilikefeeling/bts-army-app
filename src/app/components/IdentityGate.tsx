@@ -300,7 +300,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                         </p>
 
                         <form onSubmit={handleMemberSubmit} className="space-y-4">
-                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="space-y-2 pr-2">
                                 {MEMBERS_V2.map((member) => (
                                     <div key={member.id} className="flex flex-col space-y-2 p-3 rounded-lg border border-white/5 bg-black/20 hover:bg-white/5 transition-colors">
                                         <div className="flex items-center space-x-3">
