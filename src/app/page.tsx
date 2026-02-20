@@ -25,7 +25,7 @@ export default function Home() {
               BTS ARMY NUMBER
             </h1>
             <IdentityGate onVerified={() => setIsVerified(true)} />
-            <PromoBanner className="mt-8 max-w-2xl w-full" />
+            <PromoBanner className="mt-8 max-w-lg w-full" />
           </div>
         ) : (
           <div className="w-full animate-fade-in">
