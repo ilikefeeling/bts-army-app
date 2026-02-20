@@ -13,6 +13,7 @@ import { classifyNumber } from "@/lib/numberLogic";
 interface PaymentModalProps {
     number: string;
     price: number;
+    verifiedEmail?: string;
     onClose: () => void;
 }
 
@@ -23,17 +24,22 @@ interface RegistrantInfo {
 }
 
 // Modal step types
-type ModalStep = 'payment' | 'registration' | 'certificate';
+type ModalStep = 'verification' | 'payment' | 'registration' | 'certificate';
 
-export default function PaymentModal({ number, price, onClose }: PaymentModalProps) {
+export default function PaymentModal({ number, price, verifiedEmail: initialVerifiedEmail, onClose }: PaymentModalProps) {
     const { t } = useLanguage();
-    const [step, setStep] = useState<ModalStep>('payment');
+    // Logic: If already verified, go to payment (if > 0) or registration (if free)
+    const initialStep = initialVerifiedEmail
+        ? (price > 0 ? 'payment' : 'registration')
+        : 'verification';
+
+    const [step, setStep] = useState<ModalStep>(initialStep);
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState("");
     const [issueDate, setIssueDate] = useState("");
 
     // Store payer details from PayPal as prefills for the form
-    const [payerEmail, setPayerEmail] = useState("");
+    const [payerEmail, setPayerEmail] = useState(initialVerifiedEmail || "");
     const [payerName, setPayerName] = useState("");
 
     // Final registrant data
@@ -113,6 +119,17 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
                 </button>
 
                 <div className="p-6">
+                    {/* Step: Verification */}
+                    {step === 'verification' && (
+                        <RegistrationForm
+                            number={number}
+                            tier={tier}
+                            payerEmail={payerEmail}
+                            onComplete={() => { }} // Not used in 'verify-only' mode
+                            isVerified={false}
+                        />
+                    )}
+
                     {/* Step: Payment */}
                     {step === 'payment' && (
                         <>
@@ -180,6 +197,7 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
                                     tier={tier}
                                     payerEmail={payerEmail}
                                     payerName={payerName}
+                                    isVerified={!!initialVerifiedEmail}
                                     onComplete={handleRegistrationComplete}
                                 />
                             )}
@@ -191,9 +209,9 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
                     {step === 'certificate' && registrant && (
                         <div className="py-4">
                             <div className="text-center mb-6">
-                                <h3 className="text-2xl font-black text-white mb-1">🎉 발급 완료!</h3>
+                                <h3 className="text-2xl font-black text-white mb-1">🎉 Issuance Complete!</h3>
                                 <p className="text-gray-400 text-sm">
-                                    이제 <span className="text-army-gold font-mono">{number}</span> 번호의 공식 소유자입니다.
+                                    You are now the official owner of number <span className="text-army-gold font-mono">{number}</span>.
                                 </p>
                             </div>
                             <Certificate

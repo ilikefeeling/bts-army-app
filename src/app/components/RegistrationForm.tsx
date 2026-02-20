@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { auth, db } from "@/lib/firebase";
+import { sendSignInLinkToEmail } from "firebase/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2, Loader2, AlertCircle, Send } from "lucide-react";
 
 interface RegistrationData {
     ownerName: string;
@@ -17,11 +18,15 @@ interface RegistrationFormProps {
     tier: string;
     payerEmail?: string;
     payerName?: string;
+    isVerified?: boolean;
     onComplete: (data: RegistrationData) => void;
 }
 
-export default function RegistrationForm({ number, tier, payerEmail = "", payerName = "", onComplete }: RegistrationFormProps) {
-    const [step, setStep] = useState<'input' | 'review'>('input');
+// Modal step types
+type ModalStep = 'verify' | 'input' | 'review';
+
+export default function RegistrationForm({ number, tier, payerEmail = "", payerName = "", isVerified = false, onComplete }: RegistrationFormProps) {
+    const [step, setStep] = useState<ModalStep>(isVerified ? 'input' : 'verify');
     const [formData, setFormData] = useState<RegistrationData>({
         ownerName: payerName,
         phone: "",
@@ -104,9 +109,113 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
     };
     const tierColor = tierColors[tier] || tierColors.STANDARD;
 
+    const handleSendLink = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setGlobalError("");
+        if (!formData.email.trim() || !formData.email.includes("@")) {
+            setErrors({ email: "Please enter a valid email address." });
+            return;
+        }
+
+        setIsValidating(true);
+        try {
+            // Check for existing registration before sending link (optional but good)
+            const qEmail = query(
+                collection(db, "army_numbers"),
+                where("owner_email", "==", formData.email.trim().toLowerCase()),
+                where("status", "==", "sold")
+            );
+            const snapEmail = await getDocs(qEmail);
+            if (!snapEmail.empty) {
+                setGlobalError("This email address is already registered.");
+                setIsValidating(false);
+                return;
+            }
+
+            const actionCodeSettings = {
+                url: window.location.origin + "/verify-email",
+                handleCodeInApp: true,
+            };
+
+            await sendSignInLinkToEmail(auth, formData.email.trim(), actionCodeSettings);
+
+            // Store email locally to complete sign-in on return
+            window.localStorage.setItem('emailForSignIn', formData.email.trim());
+            window.localStorage.setItem('pendingArmyNumber', number);
+
+            setGlobalError("✅ Verification link sent! Please check your inbox.");
+        } catch (err) {
+            console.error("Failed to send link", err);
+            setGlobalError("Failed to send verification link. Please try again.");
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
     return (
         <AnimatePresence mode="wait">
-            {step === 'input' ? (
+            {step === 'verify' ? (
+                <motion.div
+                    key="verify"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                >
+                    <div className="text-center mb-6">
+                        <div className="w-16 h-16 bg-army-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Mail className="text-army-purple" size={32} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Email Verification</h3>
+                        <p className="text-gray-400 text-sm">
+                            To ensure authenticity, we need to verify your email address before issuing your ARMY number.
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSendLink} className="space-y-4">
+                        <div>
+                            <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                                <Mail size={11} /> Email Address
+                            </label>
+                            <input
+                                type="email"
+                                value={formData.email}
+                                onChange={e => handleChange("email", e.target.value)}
+                                placeholder="your@email.com"
+                                className={inputClass("email")}
+                                disabled={globalError.includes("sent")}
+                            />
+                            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                        </div>
+
+                        {globalError && (
+                            <div className={`p-3 rounded-xl text-sm mb-4 flex items-start gap-2 ${globalError.includes("sent")
+                                ? "bg-green-500/10 border border-green-500/30 text-green-400"
+                                : "bg-red-500/10 border border-red-500/30 text-red-400"
+                                }`}>
+                                {globalError.includes("sent") ? <CheckCircle size={16} className="shrink-0 mt-0.5" /> : <AlertCircle size={16} className="shrink-0 mt-0.5" />}
+                                <span>{globalError}</span>
+                            </div>
+                        )}
+
+                        {!globalError.includes("sent") && (
+                            <button
+                                type="submit"
+                                disabled={isValidating}
+                                className="w-full py-4 bg-army-gold text-black font-black text-base rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {isValidating ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                Send Verification Link
+                            </button>
+                        )}
+
+                        {globalError.includes("sent") && (
+                            <p className="text-xs text-center text-gray-500 mt-4 italic">
+                                Please click the link in your email to continue. You can close this window.
+                            </p>
+                        )}
+                    </form>
+                </motion.div>
+            ) : step === 'input' ? (
                 <motion.div
                     key="input"
                     initial={{ opacity: 0, y: 20 }}
@@ -148,6 +257,7 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                                 onChange={e => handleChange("email", e.target.value)}
                                 placeholder="your@email.com"
                                 className={inputClass("email")}
+                                disabled={isVerified}
                             />
                             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                         </div>

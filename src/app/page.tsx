@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import IdentityGate from "@/app/components/IdentityGate";
 import ArmyNumberSearch from "@/app/components/ArmyNumberSearch";
 import PromoBanner from "@/app/components/PromoBanner";
 import { FileText } from "lucide-react";
+import { Suspense } from "react";
 
-export default function Home() {
+function HomeContent() {
   const [isVerified, setIsVerified] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // If returning from email verification
+    const emailVerified = searchParams.get('verified');
+    if (emailVerified === 'true') {
+      setIsVerified(true);
+      // The verified email and number are in query params if we need them to pre-open something
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-army-dark flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -51,7 +63,11 @@ export default function Home() {
 
               {/* Search Interface */}
               <div className="mt-8">
-                <ArmyNumberSearch />
+                <ArmyNumberSearch
+                  initialNumber={searchParams.get('number') || undefined}
+                  initialVerified={searchParams.get('verified') === 'true'}
+                  verifiedEmail={searchParams.get('email') || undefined}
+                />
               </div>
             </div>
 
@@ -71,5 +87,13 @@ export default function Home() {
         &quot;Dokdo is Korean Territory&quot;
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-army-dark flex items-center justify-center font-mono text-army-gold">LOADING HQ...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }

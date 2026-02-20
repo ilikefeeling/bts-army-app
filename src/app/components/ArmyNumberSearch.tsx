@@ -8,7 +8,13 @@ import { classifyNumber, getPrice, type Tier, type PricingConfig, DEFAULT_PRICIN
 import PaymentModal from "./PaymentModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function ArmyNumberSearch() {
+interface ArmyNumberSearchProps {
+    initialNumber?: string;
+    initialVerified?: boolean;
+    verifiedEmail?: string;
+}
+
+export default function ArmyNumberSearch({ initialNumber, initialVerified, verifiedEmail }: ArmyNumberSearchProps) {
     const { t } = useLanguage();
     // Mock Mode Check
     const isMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_key";
@@ -18,10 +24,23 @@ export default function ArmyNumberSearch() {
     const inputRefs = useState<Array<HTMLInputElement | null>>([])[0] || [];
 
     // Sync digits to query for search logic
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState(initialNumber || "");
     useEffect(() => {
-        setQuery(digits.join(""));
-    }, [digits]);
+        if (!initialNumber) {
+            setQuery(digits.join(""));
+        }
+    }, [digits, initialNumber]);
+
+    // Pre-fill digits if initialNumber is provided
+    useEffect(() => {
+        if (initialNumber) {
+            setDigitsFromString(initialNumber);
+            checkNumber(initialNumber);
+            if (initialVerified) {
+                setShowPayment(true);
+            }
+        }
+    }, [initialNumber, initialVerified]);
 
     const handleDigitChange = (index: number, value: string) => {
         // Allow only numbers
@@ -411,6 +430,7 @@ export default function ArmyNumberSearch() {
                 <PaymentModal
                     number={result.number}
                     price={result.price}
+                    verifiedEmail={verifiedEmail}
                     onClose={() => setShowPayment(false)}
                 />
             )}
