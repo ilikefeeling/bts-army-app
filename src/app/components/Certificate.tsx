@@ -30,13 +30,7 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
     const tierColor = TIER_COLORS[tier] || TIER_COLORS.STANDARD;
 
     const handlePrint = () => {
-        const printContent = cardRef.current?.innerHTML;
-        const originalBody = document.body.innerHTML;
-        if (!printContent) return;
-        document.body.innerHTML = `<div style="font-family: 'Batang', 'Malgun Gothic', serif; padding: 48px;">${printContent}</div>`;
         window.print();
-        document.body.innerHTML = originalBody;
-        window.location.reload();
     };
 
     const rows = [
@@ -53,6 +47,7 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
             {/* Certificate Card */}
             <div
                 ref={cardRef}
+                id="printable-certificate"
                 className="w-full max-w-lg bg-white text-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-200"
             >
                 {/* Top Accent Line */}
