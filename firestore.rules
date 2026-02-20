@@ -2,21 +2,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Events config: public read (dynamic event challenge/guide)
+    // Events config: public read + write (admin panel manages via UI)
     match /events/{docId} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if true;
     }
 
-    // Pricing config: public read
+    // Pricing config: public read + write (admin panel manages via UI)
     match /pricing/{docId} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if true;
     }
 
     // Army Numbers: public read + write
     // - read: certificate lookup by email
-    // - write: registration save after payment
+    // - write: registration save after payment/claim
     match /army_numbers/{number} {
       allow read: if true;
       allow write: if true;
