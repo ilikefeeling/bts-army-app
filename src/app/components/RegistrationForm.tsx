@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2 } from "lucide-react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2, Loader2, AlertCircle } from "lucide-react";
 
 interface RegistrationData {
     ownerName: string;
@@ -26,6 +28,8 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
         email: payerEmail,
     });
     const [errors, setErrors] = useState<Partial<RegistrationData>>({});
+    const [globalError, setGlobalError] = useState("");
+    const [isValidating, setIsValidating] = useState(false);
 
     const handleChange = (field: keyof RegistrationData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -43,10 +47,46 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmitToReview = (e: React.FormEvent) => {
+    const handleSubmitToReview = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validate()) {
+        setGlobalError("");
+
+        if (!validate()) return;
+
+        setIsValidating(true);
+        try {
+            // 1. Check Phone uniqueness
+            const qPhone = query(
+                collection(db, "army_numbers"),
+                where("phone", "==", formData.phone.trim()),
+                where("status", "==", "sold")
+            );
+            const snapPhone = await getDocs(qPhone);
+            if (!snapPhone.empty) {
+                setGlobalError("This phone number is already registered.");
+                setIsValidating(false);
+                return;
+            }
+
+            // 2. Check Email uniqueness
+            const qEmail = query(
+                collection(db, "army_numbers"),
+                where("owner_email", "==", formData.email.trim().toLowerCase()),
+                where("status", "==", "sold")
+            );
+            const snapEmail = await getDocs(qEmail);
+            if (!snapEmail.empty) {
+                setGlobalError("This email address is already registered.");
+                setIsValidating(false);
+                return;
+            }
+
             setStep('review');
+        } catch (err) {
+            console.error("Validation failed", err);
+            setGlobalError("Validation failed. Please try again.");
+        } finally {
+            setIsValidating(false);
         }
     };
 
@@ -126,11 +166,28 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                             {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
                         </div>
 
+                        {globalError && (
+                            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm mb-4">
+                                <AlertCircle size={16} />
+                                {globalError}
+                            </div>
+                        )}
+
                         <button
                             type="submit"
-                            className="w-full py-4 bg-army-gold text-black font-black text-base rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 mt-2"
+                            disabled={isValidating}
+                            className="w-full py-4 bg-army-gold text-black font-black text-base rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
                         >
-                            Review & Confirm <ArrowRight size={18} />
+                            {isValidating ? (
+                                <>
+                                    <Loader2 size={18} className="animate-spin" />
+                                    Checking...
+                                </>
+                            ) : (
+                                <>
+                                    Review & Confirm <ArrowRight size={18} />
+                                </>
+                            )}
                         </button>
                     </form>
                 </motion.div>

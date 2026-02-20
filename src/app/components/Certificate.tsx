@@ -57,7 +57,7 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
                 <div className="text-center px-8 py-6 border-b border-gray-200">
                     <p className="text-xs tracking-[0.3em] text-gray-500 mb-1 uppercase">Official BTS ARMY</p>
                     <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                        아미 번호 발급 확인증
+                        OFFICIAL ARMY CERTIFICATE
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">Certificate of Army Number Registration</p>
                 </div>
@@ -102,11 +102,11 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
 
                 {/* Footer / Confirmation Text */}
                 <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 text-center">
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                        위와 같이 BTS ARMY 번호가 등록되었음을 확인합니다.
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                        This certifies that the BTS ARMY Number above has been officially registered.
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                        This certifies that the above Army Number has been officially registered.
+                        Please keep this certificate for your records.
                     </p>
 
                     {/* Issue Date + Seal */}
@@ -127,7 +127,7 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs text-gray-400">발급기관</p>
+                            <p className="text-xs text-gray-400">Issued by</p>
                             <p className="text-sm font-bold text-gray-700">BTS ARMY HQ</p>
                         </div>
                     </div>
@@ -144,18 +144,18 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-sm font-bold transition-all border border-white/10"
                 >
                     <Printer size={16} />
-                    인쇄 / 저장
+                    Download / Print
                 </button>
                 <button
                     onClick={() => window.location.href = "/my-certificates"}
                     className="flex-1 flex items-center justify-center gap-2 py-3 border-2 text-sm font-bold rounded-xl transition-all"
                     style={{ borderColor: tierColor, color: tierColor }}
                 >
-                    내 인증서 보기
+                    View My Certificates
                 </button>
             </div>
-            <p className="text-xs text-gray-600 mt-3 text-center">
-                이 인증서는 법적 효력이 없습니다. 팬 프로젝트입니다.
+            <p className="text-xs text-gray-600 mt-3 text-center italic">
+                This certificate has no legal effect. It is a fan project.
             </p>
         </div>
     );

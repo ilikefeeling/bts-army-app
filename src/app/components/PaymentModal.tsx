@@ -73,7 +73,7 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
     const handleRegistrationComplete = async (formData: RegistrantInfo) => {
         setProcessing(true);
         try {
-            const date = new Date().toLocaleDateString('ko-KR', {
+            const date = new Date().toLocaleDateString('en-US', {
                 year: 'numeric', month: 'long', day: 'numeric'
             });
             setIssueDate(date);
