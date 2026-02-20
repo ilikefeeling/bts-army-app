@@ -40,11 +40,11 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
 
     const validate = (): boolean => {
         const newErrors: Partial<RegistrationData> = {};
-        if (!formData.ownerNameKo.trim()) newErrors.ownerNameKo = "한글 이름을 입력해주세요.";
-        if (!formData.ownerNameEn.trim()) newErrors.ownerNameEn = "영문 이름을 입력해주세요.";
-        if (!formData.phone.trim()) newErrors.phone = "전화번호를 입력해주세요.";
-        if (!formData.email.trim() || !formData.email.includes("@")) newErrors.email = "올바른 이메일을 입력해주세요.";
-        if (!formData.address.trim()) newErrors.address = "주소를 입력해주세요.";
+        if (!formData.ownerNameKo.trim()) newErrors.ownerNameKo = "Please enter your Korean name.";
+        if (!formData.ownerNameEn.trim()) newErrors.ownerNameEn = "Please enter your English name.";
+        if (!formData.phone.trim()) newErrors.phone = "Please enter your phone number.";
+        if (!formData.email.trim() || !formData.email.includes("@")) newErrors.email = "Please enter a valid email address.";
+        if (!formData.address.trim()) newErrors.address = "Please enter your address.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -86,27 +86,27 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                         <p className="text-xs text-gray-500 uppercase tracking-widest">{tier} CLASS</p>
                     </div>
 
-                    <h3 className="text-xl font-bold text-white mb-1 text-center">등록 정보 입력</h3>
-                    <p className="text-gray-400 text-sm text-center mb-6">인증서에 포함될 정보를 입력해주세요.</p>
+                    <h3 className="text-xl font-bold text-white mb-1 text-center">Registration Details</h3>
+                    <p className="text-gray-400 text-sm text-center mb-6">Please fill in the information to be included on your certificate.</p>
 
                     <form onSubmit={handleSubmitToReview} className="space-y-4">
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                    <User size={11} /> 한글 성명 *
+                                    <User size={11} /> Korean Name *
                                 </label>
                                 <input
                                     type="text"
                                     value={formData.ownerNameKo}
                                     onChange={e => handleChange("ownerNameKo", e.target.value)}
-                                    placeholder="예: 홍길동"
+                                    placeholder="e.g. 홍길동"
                                     className={inputClass("ownerNameKo")}
                                 />
                                 {errors.ownerNameKo && <p className="text-red-400 text-xs mt-1">{errors.ownerNameKo}</p>}
                             </div>
                             <div>
                                 <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                    <User size={11} /> 영문 성명 *
+                                    <User size={11} /> English Name *
                                 </label>
                                 <input
                                     type="text"
@@ -121,7 +121,7 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
 
                         <div>
                             <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                <Mail size={11} /> 이메일 *
+                                <Mail size={11} /> Email *
                             </label>
                             <input
                                 type="email"
@@ -135,13 +135,13 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
 
                         <div>
                             <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                <Phone size={11} /> 전화번호 *
+                                <Phone size={11} /> Phone Number *
                             </label>
                             <input
                                 type="tel"
                                 value={formData.phone}
                                 onChange={e => handleChange("phone", e.target.value)}
-                                placeholder="예: 010-0000-0000"
+                                placeholder="e.g. 010-0000-0000"
                                 className={inputClass("phone")}
                             />
                             {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
@@ -149,13 +149,13 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
 
                         <div>
                             <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                <MapPin size={11} /> 주소 *
+                                <MapPin size={11} /> Address *
                             </label>
                             <input
                                 type="text"
                                 value={formData.address}
                                 onChange={e => handleChange("address", e.target.value)}
-                                placeholder="예: 서울특별시 강남구 테헤란로 123"
+                                placeholder="e.g. 123 Gangnam-daero, Gangnam-gu, Seoul"
                                 className={inputClass("address")}
                             />
                             {errors.address && <p className="text-red-400 text-xs mt-1">{errors.address}</p>}
@@ -165,7 +165,7 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                             type="submit"
                             className="w-full py-4 bg-army-gold text-black font-black text-base rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 mt-2"
                         >
-                            내용 확인하기 <ArrowRight size={18} />
+                            Review & Confirm <ArrowRight size={18} />
                         </button>
                     </form>
                 </motion.div>
@@ -176,21 +176,21 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                 >
-                    <h3 className="text-xl font-bold text-white mb-1 text-center">등록 내용 확인</h3>
-                    <p className="text-gray-400 text-sm text-center mb-6">아래 내용으로 인증서가 발급됩니다. 확인해주세요.</p>
+                    <h3 className="text-xl font-bold text-white mb-1 text-center">Review Registration</h3>
+                    <p className="text-gray-400 text-sm text-center mb-6">Your certificate will be issued with the information below. Please confirm.</p>
 
                     <div className="bg-black/30 border border-white/10 rounded-xl overflow-hidden mb-6">
                         <table className="w-full text-sm">
                             <tbody>
                                 {[
-                                    { label: "아미 넘버", value: `${number.slice(0, 4)}-${number.slice(4, 8)}` },
-                                    { label: "등급", value: `${tier} CLASS` },
-                                    { label: "한글 성명", value: formData.ownerNameKo },
-                                    { label: "영문 성명", value: formData.ownerNameEn },
-                                    { label: "이메일", value: formData.email },
-                                    { label: "전화번호", value: formData.phone },
-                                    { label: "주소", value: formData.address },
-                                    { label: "발급일", value: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) },
+                                    { label: "Army Number", value: `${number.slice(0, 4)}-${number.slice(4, 8)}` },
+                                    { label: "Tier", value: `${tier} CLASS` },
+                                    { label: "Korean Name", value: formData.ownerNameKo },
+                                    { label: "English Name", value: formData.ownerNameEn },
+                                    { label: "Email", value: formData.email },
+                                    { label: "Phone", value: formData.phone },
+                                    { label: "Address", value: formData.address },
+                                    { label: "Issue Date", value: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
                                 ].map(({ label, value }) => (
                                     <tr key={label} className="border-b border-white/5 last:border-0">
                                         <td className="py-3 px-4 text-gray-500 font-medium w-28 shrink-0">{label}</td>
@@ -206,13 +206,13 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                             onClick={() => setStep('input')}
                             className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
                         >
-                            <Edit2 size={16} /> 수정
+                            <Edit2 size={16} /> Edit
                         </button>
                         <button
                             onClick={() => onComplete(formData)}
                             className="flex-2 w-full py-3 bg-army-purple hover:bg-purple-600 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/50"
                         >
-                            <CheckCircle size={16} /> 인증서 발급하기
+                            <CheckCircle size={16} /> Issue Certificate
                         </button>
                     </div>
                 </motion.div>
