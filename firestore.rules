@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Events config: public read (dynamic event challenge/guide)
+    match /events/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Pricing config: public read
+    match /pricing/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Army Numbers: public read + write
+    // - read: certificate lookup by email
+    // - write: registration save after payment
+    match /army_numbers/{number} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Feed
+    match /global_lounge_feed/{postId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Market
+    match /market_items/{itemId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Catch-all: deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
