@@ -94,7 +94,7 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
             setStep('certificate');
         } catch (err) {
             console.error("Registration save failed", err);
-            setError("등록 저장에 실패했습니다. 다시 시도해주세요.");
+            setError("Failed to save registration. Please try again.");
         } finally {
             setProcessing(false);
         }
