@@ -9,11 +9,11 @@ interface PromoBannerProps {
 export default function PromoBanner({ className = "" }: PromoBannerProps) {
     return (
         <a
-            href="https://www.btsarmy.app"
+            href="https://www.bts-army.app"
             target="_blank"
             rel="noopener noreferrer"
             className={`group block w-full ${className}`}
-            aria-label="BTS ARMY 서비스 바로가기"
+            aria-label="Visit BTS ARMY Service"
         >
             <div className="
                 relative overflow-hidden rounded-2xl
@@ -46,10 +46,10 @@ export default function PromoBanner({ className = "" }: PromoBannerProps) {
                             </span>
                         </div>
                         <h3 className="text-lg md:text-xl font-black text-white leading-tight">
-                            나의 BTS ARMY 번호를 발급받으세요
+                            Get Your BTS Army Number and Use It Today
                         </h3>
                         <p className="text-sm text-purple-200/80 mt-1 leading-snug">
-                            공식 아미 번호 발급 · 인증서 발행 · 글로벌 팬 커뮤니티
+                            Official Army Number Issuance · Certificate · Global Fan Community
                         </p>
                     </div>
 
@@ -67,11 +67,11 @@ export default function PromoBanner({ className = "" }: PromoBannerProps) {
                             transition-all duration-300
                             whitespace-nowrap
                         ">
-                            BTS ARMY 서비스 바로가기
+                            Go to BTS ARMY Service
                             <ExternalLink size={16} className="shrink-0" />
                         </div>
                         <p className="text-[10px] text-purple-300/60 text-center mt-1.5">
-                            www.btsarmy.app
+                            www.bts-army.app
                         </p>
                     </div>
                 </div>
