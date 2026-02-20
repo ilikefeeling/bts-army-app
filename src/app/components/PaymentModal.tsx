@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { X, CheckCircle, Loader2 } from "lucide-react";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { X, Loader2 } from "lucide-react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Certificate from "./Certificate";
+import RegistrationForm from "./RegistrationForm";
+import { classifyNumber } from "@/lib/numberLogic";
 
 interface PaymentModalProps {
     number: string;
@@ -14,50 +16,54 @@ interface PaymentModalProps {
     onClose: () => void;
 }
 
-// Minimal type definition since @paypal/react-paypal-js types might be complex to fully import without checking node_modules
-interface OnApproveData {
-    orderID: string;
-    payerID: string | null;
+interface RegistrantInfo {
+    ownerNameKo: string;
+    ownerNameEn: string;
+    phone: string;
+    email: string;
+    address: string;
 }
+
+// Modal step types
+type ModalStep = 'payment' | 'registration' | 'certificate';
 
 export default function PaymentModal({ number, price, onClose }: PaymentModalProps) {
     const { t } = useLanguage();
-    const [success, setSuccess] = useState(false);
+    const [step, setStep] = useState<ModalStep>('payment');
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState("");
+    const [issueDate, setIssueDate] = useState("");
+
+    // Store payer details from PayPal as prefills for the form
+    const [payerEmail, setPayerEmail] = useState("");
+    const [payerName, setPayerName] = useState("");
+
+    // Final registrant data
+    const [registrant, setRegistrant] = useState<RegistrantInfo | null>(null);
+
+    const tier = classifyNumber(number);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleApprove = async (data: any, actions: any) => {
-        // Casting to any to avoid complex type matching for now, as we just need capture()
         setProcessing(true);
         try {
             const details = await actions.order.capture();
-            // Transaction successful
-            console.log("Transaction completed by " + details.payer.name.given_name);
 
-            // Security Check: Ensure number wasn't taken during payment process
+            // Security Check: Ensure number wasn't taken during payment
             const msgRef = doc(db, "army_numbers", number);
-            const msgSnap = await getDoc(msgRef); // Use getDoc imported from firestore
-
+            const msgSnap = await getDoc(msgRef);
             if (msgSnap.exists() && msgSnap.data().status === 'sold') {
-                console.error("Number already sold!");
                 setError(t.payment.error_claimed_refund);
+                setProcessing(false);
                 return;
             }
 
-            // Save to Firestore
-            // 1. Mark number as sold
-            await setDoc(doc(db, "army_numbers", number), {
-                number: number,
-                status: 'sold',
-                owner: details.payer.name.given_name,
-                owner_email: details.payer.email_address, // Save payer email for external auth
-                price: price,
-                purchasedAt: new Date().toISOString(),
-                transactionId: details.id
-            });
+            // Store payer info from PayPal for pre-filling the form
+            setPayerEmail(details.payer.email_address || "");
+            setPayerName(details.payer.name.given_name || "");
 
-            setSuccess(true);
+            // Move to registration step
+            setStep('registration');
         } catch (err) {
             console.error("Payment failed", err);
             setError(t.payment.error_processing_failed);
@@ -66,68 +72,130 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
         }
     };
 
+    const handleRegistrationComplete = async (formData: RegistrantInfo) => {
+        setProcessing(true);
+        try {
+            const date = new Date().toLocaleDateString('ko-KR', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            setIssueDate(date);
+            setRegistrant(formData);
+
+            // Save full registrant data to Firestore
+            await setDoc(doc(db, "army_numbers", number), {
+                number,
+                status: 'sold',
+                tier,
+                owner: formData.ownerNameEn,
+                ownerNameKo: formData.ownerNameKo,
+                ownerNameEn: formData.ownerNameEn,
+                owner_email: formData.email,
+                phone: formData.phone,
+                address: formData.address,
+                purchasedAt: new Date().toISOString(),
+                issueDate: date,
+            });
+
+            setStep('certificate');
+        } catch (err) {
+            console.error("Registration save failed", err);
+            setError("등록 저장에 실패했습니다. 다시 시도해주세요.");
+        } finally {
+            setProcessing(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <div className="bg-army-gray border border-white/10 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
+            <div className={`bg-army-gray border border-white/10 rounded-2xl w-full relative shadow-2xl overflow-y-auto max-h-[95vh] transition-all ${step === 'certificate' ? 'max-w-lg' : 'max-w-md'}`}>
+
+                {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-white z-10"
                 >
                     <X />
                 </button>
 
-                {!success ? (
-                    <>
-                        <h3 className="text-xl font-bold text-white mb-2">{t.payment.title}</h3>
-                        <p className="text-gray-400 mb-6">
-                            {t.payment.item_label}: <span className="text-army-gold font-mono font-bold">{number}</span>
-                            <br />
-                            {t.payment.price_label}: <span className="text-white font-bold">${price.toFixed(2)}</span>
-                        </p>
+                <div className="p-6">
+                    {/* Step: Payment */}
+                    {step === 'payment' && (
+                        <>
+                            <h3 className="text-xl font-bold text-white mb-2">{t.payment.title}</h3>
+                            <p className="text-gray-400 mb-6">
+                                {t.payment.item_label}: <span className="text-army-gold font-mono font-bold">{number}</span>
+                                <br />
+                                {t.payment.price_label}: <span className="text-white font-bold">${price.toFixed(2)}</span>
+                            </p>
 
-                        {processing ? (
-                            <div className="flex flex-col items-center py-8">
-                                <Loader2 className="w-10 h-10 text-army-gold animate-spin mb-4" />
-                                <p className="text-gray-300">{t.payment.processing}</p>
-                            </div>
-                        ) : (
-                            <div className="w-full">
-                                <PayPalScriptProvider options={{ clientId: "test", currency: "USD" }}>
-                                    <PayPalButtons
-                                        style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay" }}
-                                        createOrder={(data, actions) => {
-                                            return actions.order.create({
-                                                intent: "CAPTURE",
-                                                purchase_units: [{
-                                                    amount: { value: price.toString(), currency_code: "USD" },
-                                                    description: `Army Number ${number}`
-                                                }]
-                                            });
-                                        }}
-                                        onApprove={handleApprove}
-                                        onError={(err) => setError(t.payment.paypal_error + err)}
-                                    />
-                                </PayPalScriptProvider>
-                            </div>
-                        )}
+                            {processing ? (
+                                <div className="flex flex-col items-center py-8">
+                                    <Loader2 className="w-10 h-10 text-army-gold animate-spin mb-4" />
+                                    <p className="text-gray-300">{t.payment.processing}</p>
+                                </div>
+                            ) : (
+                                <div className="w-full">
+                                    <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
+                                        <PayPalButtons
+                                            style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay" }}
+                                            createOrder={(data, actions) => {
+                                                return actions.order.create({
+                                                    intent: "CAPTURE",
+                                                    purchase_units: [{
+                                                        amount: { value: price.toString(), currency_code: "USD" },
+                                                        description: `BTS Army Number ${number}`
+                                                    }]
+                                                });
+                                            }}
+                                            onApprove={handleApprove}
+                                            onError={(err) => setError(t.payment.paypal_error + err)}
+                                        />
+                                    </PayPalScriptProvider>
+                                </div>
+                            )}
+                            {error && <p className="text-red-400 text-center mt-4 text-sm">{error}</p>}
+                        </>
+                    )}
 
-                        {error && <p className="text-red-400 text-center mt-4 text-sm">{error}</p>}
-                    </>
-                ) : (
-                    <div className="flex flex-col items-center py-8 text-center animate-fade-in">
-                        <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-                        <h3 className="text-2xl font-bold text-white mb-2">{t.payment.success_title}</h3>
-                        <p className="text-gray-400 mb-6">
-                            {t.payment.success_msg} <span className="text-army-gold font-mono">{number}</span>.
-                        </p>
-                        <button
-                            onClick={onClose}
-                            className="bg-army-purple hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-                        >
-                            {t.payment.button_close}
-                        </button>
-                    </div>
-                )}
+                    {/* Step: Registration Form */}
+                    {step === 'registration' && (
+                        <>
+                            {processing ? (
+                                <div className="flex flex-col items-center py-12">
+                                    <Loader2 className="w-10 h-10 text-army-gold animate-spin mb-4" />
+                                    <p className="text-gray-300">인증서 발급 중...</p>
+                                </div>
+                            ) : (
+                                <RegistrationForm
+                                    number={number}
+                                    tier={tier}
+                                    payerEmail={payerEmail}
+                                    payerName={payerName}
+                                    onComplete={handleRegistrationComplete}
+                                />
+                            )}
+                            {error && <p className="text-red-400 text-center mt-4 text-sm">{error}</p>}
+                        </>
+                    )}
+
+                    {/* Step: Certificate */}
+                    {step === 'certificate' && registrant && (
+                        <div className="py-4">
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl font-black text-white mb-1">🎉 발급 완료!</h3>
+                                <p className="text-gray-400 text-sm">
+                                    이제 <span className="text-army-gold font-mono">{number}</span> 번호의 공식 소유자입니다.
+                                </p>
+                            </div>
+                            <Certificate
+                                number={number}
+                                tier={tier}
+                                issueDate={issueDate}
+                                registrant={registrant}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

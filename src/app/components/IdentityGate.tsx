@@ -29,12 +29,16 @@ const MEMBERS_V2: MemberData[] = [
     { id: 'jhope', stageName: 'JHOPE', realName: '정호석' }
 ];
 
-// Hardcoded fallback event for MVP/First Launch
+// Default event - ARIRANG Comeback (v2.0)
 const FALLBACK_EVENT: EventConfig = {
-    auth_guide: "Who are we?",
-    auth_answer: "BTS Army",
+    auth_guide: "ARIRANG을 한글로 입력하세요.",
+    auth_answer: "아리랑",
     member_entry_min: 1,
-    member_entry_max: 7 // Only relevant for selection logic if we used it
+    member_entry_max: 7,
+    is_active: true,
+    event_title: "BTS 정규 5집 'ARIRANG' 컴백 기념",
+    event_date: "2026-03-21",
+    event_notice: "2026년 3월 21일 방탄소년단 정규 5집 '아리랑(ARIRANG)' 발매 기념 광화문 컴백 공연 기념 이벤트입니다."
 };
 
 
@@ -77,20 +81,18 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
     const handleAuthSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        let isValid = false;
-        // Challenge: "Dokdo is Korean Territory" (Case-insensitive for user friendliness, but instructed to match exactly)
-        // Check against the challenge string in the translation
-        const challengeString = "Dokdo is Korean Territory";
+        // Dynamic challenge from Firestore (auth_answer)
+        const correctAnswer = eventData.auth_answer?.trim() || "아리랑";
+        const userInput = authInput.trim();
 
-        if (authInput.trim().toLowerCase() === challengeString.toLowerCase()) {
-            isValid = true;
-        }
+        const isValid = userInput === correctAnswer ||
+            userInput.toLowerCase() === correctAnswer.toLowerCase();
 
         if (isValid) {
             setStep(2);
             setError("");
         } else {
-            setError(t.gate.step1_error);
+            setError(language === 'ko' ? "정답이 아닙니다. 다시 입력해주세요." : "Incorrect answer. Please try again.");
         }
     };
 
@@ -179,8 +181,54 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex flex-col items-center justify-center space-y-8 relative z-10"
+                        className="flex flex-col items-center justify-center space-y-8 relative z-10 w-full max-w-lg"
                     >
+                        {/* Event Announcement Banner */}
+                        {eventData.event_title && eventData.is_active && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="w-full bg-gradient-to-r from-[#1a0533] via-[#2d0f4f] to-[#1a0533] border border-army-purple/50 rounded-2xl p-5 shadow-[0_0_25px_rgba(157,78,221,0.3)] relative overflow-hidden"
+                            >
+                                {/* Decorative glow */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-army-purple/5 via-army-gold/5 to-army-purple/5 animate-pulse pointer-events-none" />
+
+                                <div className="relative z-10">
+                                    {/* Event Badge */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="text-lg">🎤</span>
+                                        <span className="text-xs font-black tracking-[0.2em] text-army-gold uppercase">
+                                            Special Event
+                                        </span>
+                                        {eventData.event_date && (
+                                            <span className="ml-auto text-xs text-purple-300 font-mono bg-army-purple/20 px-2 py-0.5 rounded-full">
+                                                {new Date(eventData.event_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Title */}
+                                    <h3 className="text-white font-black text-base md:text-lg leading-snug mb-2">
+                                        {eventData.event_title}
+                                    </h3>
+
+                                    {/* Notice text */}
+                                    {eventData.event_notice && (
+                                        <p className="text-purple-200/70 text-xs leading-relaxed">
+                                            {eventData.event_notice}
+                                        </p>
+                                    )}
+
+                                    {/* Divider */}
+                                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                        <span className="text-green-400 text-xs font-bold">이벤트 진행 중</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
                         <h1 className="text-4xl md:text-6xl font-bold text-center leading-tight whitespace-pre-wrap">
                             {t.intro.title}
                         </h1>
@@ -190,7 +238,6 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                         >
                             {t.intro.button}
                         </button>
-                        {/* Language Switcher Text */}
                         <p className="text-sm text-gray-500 mt-4">
                             {language === 'en' ? "Select 'KO' for Korean Mode" : "Select 'EN' for English Mode"}
                         </p>
@@ -208,13 +255,13 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                         {/* Removed Lock Icon for a friendlier look */}
 
                         <h2 className="text-xl md:text-2xl font-medium text-center mb-6 text-gray-200">
-                            {t.gate.step1_guide}
+                            {eventData.auth_guide || t.gate.step1_guide}
                         </h2>
 
-                        {/* Challenge Text Display - cleaner and more elegant */}
+                        {/* Challenge Text Display - dynamic from Firestore */}
                         <div className="mb-8 text-center">
                             <p className="text-2xl md:text-3xl font-bold text-army-gold tracking-wider drop-shadow-lg">
-                                "{t.gate.step1_challenge}"
+                                "{eventData.auth_answer || t.gate.step1_challenge}"
                             </p>
                         </div>
 

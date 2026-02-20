@@ -128,6 +128,58 @@ export default function AdminEventPage() {
                         />
                         <label>Event Active</label>
                     </div>
+
+                    <div className="border-t border-white/10 pt-4">
+                        <h3 className="text-sm font-bold text-gray-300 mb-3">📣 이벤트 공지 정보</h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-bold mb-1 text-gray-400">이벤트 제목</label>
+                                <input
+                                    className="w-full bg-black/50 border border-white/20 rounded p-3 text-white text-sm"
+                                    value={eventData.event_title || ""}
+                                    onChange={e => setEventData({ ...eventData, event_title: e.target.value })}
+                                    placeholder="예: BTS 정규 5집 'ARIRANG' 컴백 기념"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold mb-1 text-gray-400">이벤트 날짜</label>
+                                <input
+                                    type="date"
+                                    className="w-full bg-black/50 border border-white/20 rounded p-3 text-white text-sm"
+                                    value={eventData.event_date || ""}
+                                    onChange={e => setEventData({ ...eventData, event_date: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold mb-1 text-gray-400">이벤트 공지 문구</label>
+                                <textarea
+                                    className="w-full bg-black/50 border border-white/20 rounded p-3 text-white text-sm h-20 resize-none"
+                                    value={eventData.event_notice || ""}
+                                    onChange={e => setEventData({ ...eventData, event_notice: e.target.value })}
+                                    placeholder="랜딩 화면에 표시될 공지 문구"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ARIRANG Quick-fill Preset */}
+                    <button
+                        type="button"
+                        onClick={() => setEventData({
+                            auth_guide: "ARIRANG을 한글로 입력하세요.",
+                            auth_answer: "아리랑",
+                            member_entry_min: 1,
+                            member_entry_max: 7,
+                            is_active: true,
+                            event_title: "BTS 정규 5집 'ARIRANG' 컴백 기념",
+                            event_date: "2026-03-21",
+                            event_notice: "2026년 3월 21일 방탄소년단 정규 5집 '아리랑(ARIRANG)' 발매 기념 광화문 컴백 공연 기념 이벤트입니다."
+                        })}
+                        className="w-full py-2 bg-army-gold/10 border border-army-gold/30 hover:bg-army-gold/20 text-army-gold text-sm font-bold rounded-lg transition-all"
+                    >
+                        🎤 ARIRANG 이벤트 프리셋 불러오기
+                    </button>
+
                 </form>
 
                 {/* Pricing Config */}

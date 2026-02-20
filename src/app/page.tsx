@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import IdentityGate from "@/app/components/IdentityGate";
 import ArmyNumberSearch from "@/app/components/ArmyNumberSearch";
+import PromoBanner from "@/app/components/PromoBanner";
+import { FileText } from "lucide-react";
 
 export default function Home() {
   const [isVerified, setIsVerified] = useState(false);
@@ -22,13 +25,21 @@ export default function Home() {
               BTS ARMY NUMBER
             </h1>
             <IdentityGate onVerified={() => setIsVerified(true)} />
+            <PromoBanner className="mt-8 max-w-2xl w-full" />
           </div>
         ) : (
           <div className="w-full animate-fade-in">
-            {/* Verified Content - Dashboard Placeholder */}
+            {/* Verified Content - Dashboard */}
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-2xl font-bold text-white">HQ COMMAND CENTER</h1>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
+                <Link
+                  href="/my-certificates"
+                  className="flex items-center gap-2 bg-army-gold/10 border border-army-gold/40 hover:bg-army-gold/20 px-4 py-2 rounded-lg text-sm text-army-gold font-bold transition-all"
+                >
+                  <FileText size={15} />
+                  내 인증서
+                </Link>
                 <div className="bg-army-purple/20 border border-army-purple/50 px-4 py-2 rounded-lg text-sm text-army-purple">
                   Status: <span className="font-bold">VERIFIED</span>
                 </div>
@@ -43,12 +54,19 @@ export default function Home() {
                 <ArmyNumberSearch />
               </div>
             </div>
+
+            {/* Promo Banner */}
+            <PromoBanner className="mt-6" />
           </div>
         )}
       </div>
 
       <footer className="absolute bottom-4 text-center text-gray-600 text-xs z-10">
         © 2026 BTS Army Number. Unofficial Fan Project.
+        {" · "}
+        <Link href="/my-certificates" className="hover:text-army-gold underline transition-colors">
+          내 인증서 조회
+        </Link>
         <br />
         &quot;Dokdo is Korean Territory&quot;
       </footer>

@@ -1,86 +1,170 @@
+"use client";
+
 import { useRef } from "react";
-import { Download } from "lucide-react";
-import Image from "next/image";
+import { Download, Printer } from "lucide-react";
+
+interface RegistrantInfo {
+    ownerNameKo: string;
+    ownerNameEn: string;
+    phone: string;
+    email: string;
+    address: string;
+}
 
 interface CertificateProps {
     number: string;
-    ownerName: string;
-    issueDate: string;
     tier: string;
+    issueDate: string;
+    registrant: RegistrantInfo;
 }
 
-export default function Certificate({ number, ownerName, issueDate, tier }: CertificateProps) {
-    const cardRef = useRef<HTMLDivElement>(null);
+const TIER_COLORS: Record<string, string> = {
+    VVIP: "#a855f7",
+    DIAMOND: "#60a5fa",
+    BLACK: "#6b7280",
+    GOLD: "#eab308",
+    SILVER: "#9ca3af",
+    STANDARD: "#f3f4f6",
+};
 
-    const handleDownload = () => {
-        // Simple print for MVP, or html2canvas later
+export default function Certificate({ number, tier, issueDate, registrant }: CertificateProps) {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const tierColor = TIER_COLORS[tier] || TIER_COLORS.STANDARD;
+
+    const handlePrint = () => {
+        const printContent = cardRef.current?.innerHTML;
+        const originalBody = document.body.innerHTML;
+        if (!printContent) return;
+        document.body.innerHTML = `<div style="font-family: 'Batang', 'Malgun Gothic', serif; padding: 48px;">${printContent}</div>`;
         window.print();
+        document.body.innerHTML = originalBody;
+        window.location.reload();
     };
 
+    const rows = [
+        { label: "아미 넘버", value: `${number.slice(0, 4)}-${number.slice(4, 8)}`, highlight: true },
+        { label: "등급", value: `${tier} CLASS`, highlight: true },
+        { label: "소유자명", value: `${registrant.ownerNameKo} (${registrant.ownerNameEn})`, highlight: false },
+        { label: "주소", value: registrant.address, highlight: false },
+        { label: "전화번호", value: registrant.phone, highlight: false },
+        { label: "이메일", value: registrant.email, highlight: false },
+        { label: "발급일", value: issueDate, highlight: false },
+    ];
+
     return (
-        <div className="flex flex-col items-center animate-fade-in">
+        <div className="flex flex-col items-center animate-fade-in w-full">
+            {/* Certificate Card */}
             <div
                 ref={cardRef}
-                className="relative w-full max-w-md aspect-[1.58/1] bg-black rounded-xl overflow-hidden shadow-2xl border-2 border-army-gold flex flex-col items-center justify-between p-6 text-center select-none print:shadow-none print:border-black"
-                style={{
-                    backgroundImage: "linear-gradient(45deg, #000 0%, #1a1a1a 100%)"
-                }}
+                className="w-full max-w-lg bg-white text-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-200"
             >
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-army-gold" />
-                <div className="absolute bottom-0 right-0 w-full h-1 bg-army-gold" />
-                <div className="absolute top-4 left-4 w-4 h-4 border-t border-l border-white/20" />
-                <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-white/20" />
+                {/* Top Accent Line */}
+                <div className="h-2 w-full" style={{ backgroundColor: tierColor }} />
 
                 {/* Header */}
-                <div className="mt-2">
-                    <h3 className="text-army-gold text-xs tracking-[0.3em] font-bold uppercase">Official Army Identity</h3>
-                    <div className="w-8 h-0.5 bg-army-purple mx-auto mt-2" />
+                <div className="text-center px-8 py-6 border-b border-gray-200">
+                    <p className="text-xs tracking-[0.3em] text-gray-500 mb-1 uppercase">Official BTS ARMY</p>
+                    <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+                        아미 번호 발급 확인증
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">Certificate of Army Number Registration</p>
                 </div>
 
-                {/* Main Content */}
-                <div className="flex-1 flex flex-col justify-center items-center py-4">
-                    <div className={`text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b ${tier === 'VVIP' ? 'from-yellow-200 via-yellow-400 to-yellow-600' : 'from-white via-gray-200 to-gray-400'} drop-shadow-lg tracking-widest font-mono`}>
-                        {number}
+                {/* Number Display */}
+                <div className="text-center py-6 border-b border-gray-100 bg-gray-50">
+                    <p className="text-xs text-gray-500 tracking-widest uppercase mb-1">Army Number</p>
+                    <div
+                        className="text-4xl font-black tracking-[0.2em] font-mono"
+                        style={{ color: tierColor }}
+                    >
+                        {number.slice(0, 4)}-{number.slice(4, 8)}
                     </div>
-                    {tier !== 'STANDARD' && (
-                        <div className="mt-2 px-3 py-1 bg-white/5 rounded-full border border-white/10 text-[0.6rem] text-army-gold tracking-wider uppercase">
-                            {tier} CLASS
+                    <div
+                        className="inline-block mt-2 text-xs font-bold px-3 py-1 rounded-full"
+                        style={{ backgroundColor: tierColor + "22", color: tierColor }}
+                    >
+                        {tier} CLASS
+                    </div>
+                </div>
+
+                {/* Info Table */}
+                <div className="px-8 py-6">
+                    <table className="w-full text-sm">
+                        <tbody>
+                            {rows.map(({ label, value, highlight }) => (
+                                <tr key={label} className="border-b border-gray-100 last:border-0">
+                                    <td className="py-3 pr-4 text-gray-500 font-medium whitespace-nowrap align-top w-28">
+                                        {label}
+                                    </td>
+                                    <td
+                                        className={`py-3 break-all font-mono ${highlight ? "font-bold" : "text-gray-800"}`}
+                                        style={highlight ? { color: tierColor } : {}}
+                                    >
+                                        {value}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Footer / Confirmation Text */}
+                <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 text-center">
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                        위와 같이 BTS ARMY 번호가 등록되었음을 확인합니다.
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                        This certifies that the above Army Number has been officially registered.
+                    </p>
+
+                    {/* Issue Date + Seal */}
+                    <div className="flex items-center justify-between mt-6">
+                        <div className="text-left">
+                            <p className="text-xs text-gray-400">발행일 · Issue Date</p>
+                            <p className="text-sm font-bold text-gray-700">{issueDate}</p>
                         </div>
-                    )}
+                        {/* Seal */}
+                        <div className="relative w-16 h-16 flex items-center justify-center">
+                            <svg viewBox="0 0 80 80" className="absolute inset-0 w-full h-full opacity-80">
+                                <circle cx="40" cy="40" r="36" fill="none" stroke={tierColor} strokeWidth="3" />
+                                <circle cx="40" cy="40" r="29" fill="none" stroke={tierColor} strokeWidth="1.5" />
+                            </svg>
+                            <div className="text-center z-10">
+                                <p className="text-[6px] font-bold leading-tight" style={{ color: tierColor }}>BTS</p>
+                                <p className="text-[5px] leading-tight text-gray-500">ARMY</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs text-gray-400">발급기관</p>
+                            <p className="text-sm font-bold text-gray-700">BTS ARMY HQ</p>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Footer Info */}
-                <div className="w-full flex justify-between items-end text-left border-t border-white/10 pt-4 mt-2">
-                    <div>
-                        <p className="text-[0.6rem] text-gray-500 uppercase tracking-wider">Issued To</p>
-                        <p className="text-sm font-bold text-white uppercase">{ownerName}</p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[0.6rem] text-gray-500 uppercase tracking-wider">Date of Issue</p>
-                        <p className="text-xs font-mono text-white/80">{issueDate}</p>
-                    </div>
-                </div>
-
-                {/* Watermark/Logo */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-5 pointer-events-none">
-                    <svg viewBox="0 0 100 100" fill="currentColor" className="text-white">
-                        <path d="M50 0L100 20L80 100L50 90L20 100L0 20L50 0Z" />
-                    </svg>
-                </div>
+                {/* Bottom Accent */}
+                <div className="h-1 w-full" style={{ backgroundColor: tierColor }} />
             </div>
 
-            <p className="text-gray-400 text-xs mt-4 mb-2">
-                This is your official Digital Identity Card.
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-5 w-full max-w-lg">
+                <button
+                    onClick={handlePrint}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-sm font-bold transition-all border border-white/10"
+                >
+                    <Printer size={16} />
+                    인쇄 / 저장
+                </button>
+                <button
+                    onClick={() => window.location.href = "/my-certificates"}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 border-2 text-sm font-bold rounded-xl transition-all"
+                    style={{ borderColor: tierColor, color: tierColor }}
+                >
+                    내 인증서 보기
+                </button>
+            </div>
+            <p className="text-xs text-gray-600 mt-3 text-center">
+                이 인증서는 법적 효력이 없습니다. 팬 프로젝트입니다.
             </p>
-
-            <button
-                onClick={handleDownload}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-sm transition-colors border border-white/10"
-            >
-                <Download size={16} />
-                Save Certificate
-            </button>
         </div>
     );
 }
