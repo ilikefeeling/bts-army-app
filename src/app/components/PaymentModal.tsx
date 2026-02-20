@@ -125,13 +125,27 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
                             <p className="text-gray-400 mb-6">
                                 {t.payment.item_label}: <span className="text-army-gold font-mono font-bold">{number}</span>
                                 <br />
-                                {t.payment.price_label}: <span className="text-white font-bold">${price.toFixed(2)}</span>
+                                {t.payment.price_label}: <span className="text-white font-bold">{price === 0 ? "FREE" : `$${price.toFixed(2)}`}</span>
                             </p>
 
                             {processing ? (
                                 <div className="flex flex-col items-center py-8">
                                     <Loader2 className="w-10 h-10 text-army-gold animate-spin mb-4" />
                                     <p className="text-gray-300">{t.payment.processing}</p>
+                                </div>
+                            ) : price === 0 ? (
+                                /* FREE tier — skip PayPal, go straight to registration */
+                                <div className="flex flex-col items-center gap-4 py-4">
+                                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-4 text-center w-full">
+                                        <p className="text-green-400 font-bold text-lg">🎉 Free Issuance</p>
+                                        <p className="text-gray-400 text-sm mt-1">No payment required. Proceed to registration.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setStep('registration')}
+                                        className="w-full py-3 bg-army-gold text-black font-black rounded-xl hover:brightness-110 transition-all text-base"
+                                    >
+                                        CLAIM THIS NUMBER →
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="w-full">

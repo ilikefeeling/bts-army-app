@@ -166,7 +166,7 @@ export default function AdminEventPage() {
                     <button
                         type="button"
                         onClick={() => setEventData({
-                            auth_guide: "ARIRANG을 한글로 입력하세요.",
+                            auth_guide: "Please type 'ARIRANG' in Korean.",
                             auth_answer: "아리랑",
                             member_entry_min: 1,
                             member_entry_max: 7,

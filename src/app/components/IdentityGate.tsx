@@ -31,7 +31,7 @@ const MEMBERS_V2: MemberData[] = [
 
 // Default event - ARIRANG Comeback (v2.0)
 const FALLBACK_EVENT: EventConfig = {
-    auth_guide: "ARIRANG을 한글로 입력하세요.",
+    auth_guide: "Please type 'ARIRANG' in Korean.",
     auth_answer: "아리랑",
     member_entry_min: 1,
     member_entry_max: 7,
