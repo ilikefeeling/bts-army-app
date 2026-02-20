@@ -46,11 +46,8 @@ export default function PromoBanner({ className = "" }: PromoBannerProps) {
                             </span>
                         </div>
                         <h3 className="text-lg md:text-xl font-black text-white leading-tight">
-                            Get Your BTS Army Number and Use It Today
+                            나의 BTS ARMY 번호를 발급 받고 이용하세요
                         </h3>
-                        <p className="text-sm text-purple-200/80 mt-1 leading-snug">
-                            Official Army Number Issuance · Certificate · Global Fan Community
-                        </p>
                     </div>
 
                     {/* CTA Button */}
