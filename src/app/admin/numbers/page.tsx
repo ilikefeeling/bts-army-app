@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
     Search,
@@ -17,7 +17,9 @@ import {
     Crown,
     TrendingUp,
     Users,
-    CreditCard
+    CreditCard,
+    Trash2,
+    AlertTriangle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -37,6 +39,7 @@ export default function AdminNumbersPage() {
     const [numbers, setNumbers] = useState<ArmyNumber[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [error, setError] = useState("");
     const [stats, setStats] = useState({
         total: 0,
         vvip: 0,
@@ -44,49 +47,70 @@ export default function AdminNumbersPage() {
         regular: 0
     });
 
-    useEffect(() => {
-        async function fetchData() {
-            setLoading(true);
-            try {
-                const q = query(
-                    collection(db, "army_numbers"),
-                    where("status", "==", "sold"),
-                    orderBy("purchasedAt", "desc"),
-                    limit(500)
-                );
-                const querySnapshot = await getDocs(q);
-                const data: ArmyNumber[] = [];
-                let vvip = 0, diamond = 0, regular = 0;
+    const fetchData = async () => {
+        setLoading(true);
+        setError("");
+        try {
+            // Simplified query to avoid index requirement
+            const q = query(
+                collection(db, "army_numbers"),
+                where("status", "==", "sold"),
+                limit(1000)
+            );
+            const querySnapshot = await getDocs(q);
+            const data: ArmyNumber[] = [];
+            let vvip = 0, diamond = 0, regular = 0;
 
-                querySnapshot.forEach((doc) => {
-                    const item = { id: doc.id, ...doc.data() } as ArmyNumber;
-                    data.push(item);
+            querySnapshot.forEach((doc) => {
+                const item = { id: doc.id, ...doc.data() } as ArmyNumber;
+                data.push(item);
 
-                    if (item.tier === 'VVIP') vvip++;
-                    else if (item.tier === 'DIAMOND') diamond++;
-                    else regular++;
-                });
+                if (item.tier === 'VVIP') vvip++;
+                else if (item.tier === 'DIAMOND') diamond++;
+                else regular++;
+            });
 
-                setNumbers(data);
-                setStats({
-                    total: data.length,
-                    vvip,
-                    diamond,
-                    regular
-                });
-            } catch (error) {
-                console.error("Error fetching admin data:", error);
-            } finally {
-                setLoading(false);
-            }
+            // Sort client-side by purchasedAt (if exists) or ID
+            data.sort((a, b) => (b.purchasedAt || b.id).localeCompare(a.purchasedAt || a.id));
+
+            setNumbers(data);
+            setStats({
+                total: data.length,
+                vvip,
+                diamond,
+                regular
+            });
+        } catch (err: any) {
+            console.error("Error fetching admin data:", err);
+            setError(`DB Access Error: ${err.message || 'Check connection'}. If you just created this project, an index might be pending.`);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    useEffect(() => {
         fetchData();
     }, []);
 
+    const handleDelete = async (id: string, num: string) => {
+        if (!window.confirm(`Are you sure you want to PERMANENTLY delete record #${num}? This cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            await deleteDoc(doc(db, "army_numbers", id));
+            setNumbers(prev => prev.filter(n => n.id !== id));
+            alert("Deleted successfully.");
+        } catch (err) {
+            console.error("Delete failed", err);
+            alert("Delete failed. Check permissions.");
+        }
+    };
+
     const filteredNumbers = numbers.filter(item =>
-        item.number.includes(searchTerm) ||
-        item.owner_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.owner.toLowerCase().includes(searchTerm.toLowerCase())
+        (item.number || "").includes(searchTerm) ||
+        (item.owner_email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.owner || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const exportToCSV = () => {
@@ -128,26 +152,39 @@ export default function AdminNumbersPage() {
             <div className="max-w-7xl mx-auto mb-12">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <Link href="/admin/events" className="text-army-purple hover:underline text-sm flex items-center gap-1 mb-2">
-                            <ChevronLeft size={14} /> Back to Dashboard
+                        <Link href="/" className="text-army-purple hover:underline text-sm flex items-center gap-1 mb-2">
+                            <ChevronLeft size={14} /> Back to Site
                         </Link>
                         <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3">
                             <Crown className="text-army-gold" size={36} />
                             ARMY HQ <span className="text-army-gold">CENTRAL</span>
                         </h1>
-                        <p className="text-gray-400 mt-1 uppercase text-xs tracking-[0.2em]">Management Console v2.0</p>
+                        <p className="text-gray-400 mt-1 uppercase text-xs tracking-[0.2em]">Management Console v2.1</p>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <button
+                            onClick={fetchData}
+                            className="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-sm font-bold"
+                        >
+                            Refresh
+                        </button>
+                        <button
                             onClick={exportToCSV}
-                            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all text-sm font-bold"
+                            className="flex items-center gap-2 bg-army-gold text-black border border-white/10 px-4 py-2 rounded-xl transition-all text-sm font-bold shadow-lg shadow-yellow-900/20"
                         >
                             <Download size={16} /> Export CSV
                         </button>
                     </div>
                 </div>
             </div>
+
+            {error && (
+                <div className="max-w-7xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-3 text-red-400">
+                    <AlertTriangle size={20} />
+                    <span>{error}</span>
+                </div>
+            )}
 
             {/* Stats Overview */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
@@ -206,7 +243,7 @@ export default function AdminNumbersPage() {
                                     <th className="py-4 px-6 border-b border-white/5"><Mail size={14} className="inline mr-1" /> Contact Info</th>
                                     <th className="py-4 px-6 border-b border-white/5">Tier</th>
                                     <th className="py-4 px-6 border-b border-white/5">Joined At</th>
-                                    <th className="py-4 px-6 border-b border-white/5 text-right">Action</th>
+                                    <th className="py-4 px-6 border-b border-white/5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -219,7 +256,7 @@ export default function AdminNumbersPage() {
                                             className="group hover:bg-white/5 border-b border-white/5 transition-all"
                                         >
                                             <td className="py-5 px-6 font-mono font-bold text-lg tracking-wider group-hover:text-army-gold transition-colors">
-                                                {user.number.slice(0, 4)}-{user.number.slice(4, 8)}
+                                                {user.number?.slice(0, 4)}-{user.number?.slice(4, 8)}
                                             </td>
                                             <td className="py-5 px-6">
                                                 <div className="font-bold">{user.owner}</div>
@@ -245,8 +282,12 @@ export default function AdminNumbersPage() {
                                                 {user.issueDate}
                                             </td>
                                             <td className="py-5 px-6 text-right">
-                                                <button className="text-army-purple hover:text-purple-400 font-bold text-xs uppercase transition-colors">
-                                                    Manage
+                                                <button
+                                                    onClick={() => handleDelete(user.id, user.number)}
+                                                    className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                                                    title="Delete Record"
+                                                >
+                                                    <Trash2 size={18} />
                                                 </button>
                                             </td>
                                         </motion.tr>
@@ -258,28 +299,20 @@ export default function AdminNumbersPage() {
 
                     {filteredNumbers.length === 0 && (
                         <div className="py-20 text-center text-gray-500 italic">
-                            No matching recruits found in the central database.
+                            <p>No matching recruits found in the central database.</p>
+                            <p className="text-xs mt-2 not-italic">Tip: Check if Firestore rules permit listing documents.</p>
                         </div>
                     )}
 
-                    {/* Pagination Placeholder */}
                     <div className="p-6 bg-white/5 flex items-center justify-between border-t border-white/10">
                         <p className="text-xs text-gray-500">Showing {filteredNumbers.length} of {numbers.length} total certificates</p>
-                        <div className="flex gap-2">
-                            <button className="p-2 rounded-lg bg-black/40 text-gray-600 cursor-not-allowed">
-                                <ChevronLeft size={16} />
-                            </button>
-                            <button className="p-2 rounded-lg bg-black/40 text-gray-600 cursor-not-allowed">
-                                <ChevronRight size={16} />
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Footer */}
-            <footer className="max-w-7xl mx-auto mt-12 mb-8 text-center">
-                <p className="text-xs text-gray-600 uppercase tracking-[0.3em]">
+            <footer className="max-w-7xl mx-auto mt-12 mb-8 text-center text-gray-600">
+                <p className="text-xs uppercase tracking-[0.3em]">
                     Confidential · Private Access Only · BTS ARMY HQ Central Database
                 </p>
             </footer>
