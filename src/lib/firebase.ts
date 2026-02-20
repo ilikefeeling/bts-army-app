@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getFunctions } from "firebase/functions";
 
@@ -14,7 +14,13 @@ const firebaseConfig = {
 
 // Initialize Firebase (Singleton pattern)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+// In some restricted environments (like certain mobile browsers or behind firewalls), 
+// WebSockets might be blocked. Force long-polling as a fallback.
+const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+
 const auth = getAuth(app);
 const functions = getFunctions(app);
 
