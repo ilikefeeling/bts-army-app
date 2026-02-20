@@ -171,9 +171,9 @@ export default function AdminEventPage() {
                             member_entry_min: 1,
                             member_entry_max: 7,
                             is_active: true,
-                            event_title: "BTS 정규 5집 'ARIRANG' 컴백 기념",
+                            event_title: "BTS 5th Album 'ARIRANG' Comeback Special",
                             event_date: "2026-03-21",
-                            event_notice: "2026년 3월 21일 방탄소년단 정규 5집 '아리랑(ARIRANG)' 발매 기념 광화문 컴백 공연 기념 이벤트입니다."
+                            event_notice: "Celebrating the release of BTS 5th Studio Album 'ARIRANG' on March 21, 2026, and the Gwanghwamun Comeback Concert."
                         })}
                         className="w-full py-2 bg-army-gold/10 border border-army-gold/30 hover:bg-army-gold/20 text-army-gold text-sm font-bold rounded-lg transition-all"
                     >
