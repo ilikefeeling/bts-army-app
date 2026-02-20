@@ -17,11 +17,9 @@ interface PaymentModalProps {
 }
 
 interface RegistrantInfo {
-    ownerNameKo: string;
-    ownerNameEn: string;
+    ownerName: string;
     phone: string;
     email: string;
-    address: string;
 }
 
 // Modal step types
@@ -86,12 +84,9 @@ export default function PaymentModal({ number, price, onClose }: PaymentModalPro
                 number,
                 status: 'sold',
                 tier,
-                owner: formData.ownerNameEn,
-                ownerNameKo: formData.ownerNameKo,
-                ownerNameEn: formData.ownerNameEn,
+                owner: formData.ownerName,
                 owner_email: formData.email,
                 phone: formData.phone,
-                address: formData.address,
                 purchasedAt: new Date().toISOString(),
                 issueDate: date,
             });

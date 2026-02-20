@@ -10,11 +10,9 @@ import Link from "next/link";
 interface ArmyNumberDoc {
     number: string;
     tier: string;
-    ownerNameKo: string;
-    ownerNameEn: string;
+    owner: string;
     phone: string;
     email: string;
-    address: string;
     issueDate: string;
 }
 
@@ -134,11 +132,9 @@ export default function MyCertificatesPage() {
                                         tier={cert.tier || "STANDARD"}
                                         issueDate={cert.issueDate}
                                         registrant={{
-                                            ownerNameKo: cert.ownerNameKo,
-                                            ownerNameEn: cert.ownerNameEn,
+                                            ownerName: cert.owner || "",
                                             phone: cert.phone,
                                             email: cert.email,
-                                            address: cert.address,
                                         }}
                                     />
                                 ))}

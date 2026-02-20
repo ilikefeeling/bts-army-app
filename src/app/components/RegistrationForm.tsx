@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, User, Phone, MapPin, Mail, ArrowRight, Edit2 } from "lucide-react";
+import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2 } from "lucide-react";
 
 interface RegistrationData {
-    ownerNameKo: string;
-    ownerNameEn: string;
+    ownerName: string;
     phone: string;
     email: string;
-    address: string;
 }
 
 interface RegistrationFormProps {
@@ -23,11 +21,9 @@ interface RegistrationFormProps {
 export default function RegistrationForm({ number, tier, payerEmail = "", payerName = "", onComplete }: RegistrationFormProps) {
     const [step, setStep] = useState<'input' | 'review'>('input');
     const [formData, setFormData] = useState<RegistrationData>({
-        ownerNameKo: "",
-        ownerNameEn: payerName,
+        ownerName: payerName,
         phone: "",
         email: payerEmail,
-        address: "",
     });
     const [errors, setErrors] = useState<Partial<RegistrationData>>({});
 
@@ -40,11 +36,9 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
 
     const validate = (): boolean => {
         const newErrors: Partial<RegistrationData> = {};
-        if (!formData.ownerNameKo.trim()) newErrors.ownerNameKo = "Please enter your Korean name.";
-        if (!formData.ownerNameEn.trim()) newErrors.ownerNameEn = "Please enter your English name.";
+        if (!formData.ownerName.trim()) newErrors.ownerName = "Please enter your name.";
         if (!formData.phone.trim()) newErrors.phone = "Please enter your phone number.";
         if (!formData.email.trim() || !formData.email.includes("@")) newErrors.email = "Please enter a valid email address.";
-        if (!formData.address.trim()) newErrors.address = "Please enter your address.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -90,33 +84,18 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                     <p className="text-gray-400 text-sm text-center mb-6">Please fill in the information to be included on your certificate.</p>
 
                     <form onSubmit={handleSubmitToReview} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                    <User size={11} /> Korean Name *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.ownerNameKo}
-                                    onChange={e => handleChange("ownerNameKo", e.target.value)}
-                                    placeholder="e.g. 홍길동"
-                                    className={inputClass("ownerNameKo")}
-                                />
-                                {errors.ownerNameKo && <p className="text-red-400 text-xs mt-1">{errors.ownerNameKo}</p>}
-                            </div>
-                            <div>
-                                <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                    <User size={11} /> English Name *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.ownerNameEn}
-                                    onChange={e => handleChange("ownerNameEn", e.target.value)}
-                                    placeholder="e.g. HONG GILDONG"
-                                    className={inputClass("ownerNameEn")}
-                                />
-                                {errors.ownerNameEn && <p className="text-red-400 text-xs mt-1">{errors.ownerNameEn}</p>}
-                            </div>
+                        <div>
+                            <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                                <User size={11} /> Name *
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.ownerName}
+                                onChange={e => handleChange("ownerName", e.target.value)}
+                                placeholder="e.g. John Doe / 홍길동"
+                                className={inputClass("ownerName")}
+                            />
+                            {errors.ownerName && <p className="text-red-400 text-xs mt-1">{errors.ownerName}</p>}
                         </div>
 
                         <div>
@@ -141,24 +120,10 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                                 type="tel"
                                 value={formData.phone}
                                 onChange={e => handleChange("phone", e.target.value)}
-                                placeholder="e.g. 010-0000-0000"
+                                placeholder="e.g. +82 10-0000-0000"
                                 className={inputClass("phone")}
                             />
                             {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
-                        </div>
-
-                        <div>
-                            <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
-                                <MapPin size={11} /> Address *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.address}
-                                onChange={e => handleChange("address", e.target.value)}
-                                placeholder="e.g. 123 Gangnam-daero, Gangnam-gu, Seoul"
-                                className={inputClass("address")}
-                            />
-                            {errors.address && <p className="text-red-400 text-xs mt-1">{errors.address}</p>}
                         </div>
 
                         <button
@@ -185,11 +150,9 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                                 {[
                                     { label: "Army Number", value: `${number.slice(0, 4)}-${number.slice(4, 8)}` },
                                     { label: "Tier", value: `${tier} CLASS` },
-                                    { label: "Korean Name", value: formData.ownerNameKo },
-                                    { label: "English Name", value: formData.ownerNameEn },
+                                    { label: "Name", value: formData.ownerName },
                                     { label: "Email", value: formData.email },
                                     { label: "Phone", value: formData.phone },
-                                    { label: "Address", value: formData.address },
                                     { label: "Issue Date", value: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
                                 ].map(({ label, value }) => (
                                     <tr key={label} className="border-b border-white/5 last:border-0">

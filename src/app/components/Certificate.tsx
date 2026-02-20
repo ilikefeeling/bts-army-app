@@ -4,11 +4,9 @@ import { useRef } from "react";
 import { Download, Printer } from "lucide-react";
 
 interface RegistrantInfo {
-    ownerNameKo: string;
-    ownerNameEn: string;
+    ownerName: string;
     phone: string;
     email: string;
-    address: string;
 }
 
 interface CertificateProps {
@@ -42,13 +40,12 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
     };
 
     const rows = [
-        { label: "아미 넘버", value: `${number.slice(0, 4)}-${number.slice(4, 8)}`, highlight: true },
-        { label: "등급", value: `${tier} CLASS`, highlight: true },
-        { label: "소유자명", value: `${registrant.ownerNameKo} (${registrant.ownerNameEn})`, highlight: false },
-        { label: "주소", value: registrant.address, highlight: false },
-        { label: "전화번호", value: registrant.phone, highlight: false },
-        { label: "이메일", value: registrant.email, highlight: false },
-        { label: "발급일", value: issueDate, highlight: false },
+        { label: "Army Number", value: `${number.slice(0, 4)}-${number.slice(4, 8)}`, highlight: true },
+        { label: "Tier", value: `${tier} CLASS`, highlight: true },
+        { label: "Name", value: registrant.ownerName, highlight: false },
+        { label: "Phone", value: registrant.phone, highlight: false },
+        { label: "Email", value: registrant.email, highlight: false },
+        { label: "Issue Date", value: issueDate, highlight: false },
     ];
 
     return (
