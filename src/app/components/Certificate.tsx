@@ -30,7 +30,61 @@ export default function Certificate({ number, tier, issueDate, registrant }: Cer
     const tierColor = TIER_COLORS[tier] || TIER_COLORS.STANDARD;
 
     const handlePrint = () => {
-        window.print();
+        if (!cardRef.current) return;
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert("팝업 차단이 설정되어 있습니다. 인쇄를 위해 팝업을 허용해주세요!");
+            return;
+        }
+
+        const headHtml = document.head.innerHTML;
+        const certHtml = cardRef.current.outerHTML;
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>Print Certificate - BTS ARMY</title>
+                    ${headHtml}
+                    <style>
+                        @page { margin: 15mm; }
+                        body { 
+                            background: white !important; 
+                            margin: 0; 
+                            padding: 20px; 
+                            display: flex; 
+                            justify-content: center;
+                            -webkit-print-color-adjust: exact;
+                            color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .no-print, button { display: none !important; }
+                        #printable-certificate {
+                            box-shadow: none !important;
+                            border: 1px solid #e5e7eb !important;
+                            max-width: 800px !important;
+                            width: 100% !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${certHtml}
+                    <script>
+                        // Wait for images and fonts to load
+                        window.onload = () => {
+                            setTimeout(() => {
+                                window.print();
+                                // Optional: auto close tab after print dialog
+                                // window.onafterprint = () => window.close();
+                            }, 500);
+                        };
+                    </script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
     };
 
     const rows = [
