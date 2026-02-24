@@ -111,45 +111,51 @@ body {
 }
 
 @media print {
-  body {
+
+  body,
+  html {
     background: white !important;
     padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
   }
 
-  /* Hide everything by default when printing */
-  body>*:not(#printable-certificate) {
-    display: none !important;
+  /* Hide everything on the page to prevent blank pages and overlays */
+  body * {
+    visibility: hidden;
   }
 
-  /* Handle React portals or nested modals */
-  #printable-certificate {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px !important;
-    visibility: visible !important;
-    display: block !important;
-    box-shadow: none !important;
-    border: 1px solid #eee !important;
-    z-index: 9999999 !important;
-  }
-
-  /* Hide all siblings and parents' siblings */
-  *:not(#printable-certificate):not(body):not(html) {
-    visibility: hidden !important;
-  }
-
+  /* Restore visibility ONLY for the certificate and its exact DOM children */
   #printable-certificate,
   #printable-certificate * {
     visibility: visible !important;
     -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  /* Specifically hide buttons and non-printable elements inside certificate */
+  /* Move the certificate out of its nested trap and lock it to the top-left */
+  #printable-certificate {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    box-shadow: none !important;
+    border: none !important;
+    transform: none !important;
+  }
+
+  /* Hide action buttons and extra spacing */
   #printable-certificate button,
   #printable-certificate .no-print {
     display: none !important;
+  }
+
+  @page {
+    margin: 10mm;
   }
 }
 
