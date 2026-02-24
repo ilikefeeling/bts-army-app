@@ -32,11 +32,20 @@ function HomeContent() {
 
       <div className="z-10 w-full max-w-4xl">
         {!isVerified ? (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center w-full">
             <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-army-purple to-army-gold mb-8 tracking-tighter text-center">
               BTS ARMY NUMBER
             </h1>
             <IdentityGate onVerified={() => setIsVerified(true)} />
+
+            <Link
+              href="/my-certificates"
+              className="mt-6 flex items-center justify-center gap-2 w-full max-w-md py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-bold transition-all"
+            >
+              <FileText size={18} />
+              내 번호 확인하기 (발급 내역 조회)
+            </Link>
+
             <PromoBanner className="mt-8 max-w-lg w-full" />
           </div>
         ) : (
