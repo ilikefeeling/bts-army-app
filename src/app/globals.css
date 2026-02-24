@@ -152,3 +152,49 @@ body {
     display: none !important;
   }
 }
+
+/* React Phone Number Input Overrides */
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+  /* text-sm */
+}
+
+.PhoneInputInput::placeholder {
+  color: #4b5563;
+  /* gray-600 */
+}
+
+.PhoneInputCountry {
+  margin-right: 0.5rem;
+}
+
+.PhoneInputCountrySelect {
+  background: #1E1E2E;
+  color: white;
+}
+
+.PhoneInputCountryIcon {
+  width: 1.5rem;
+  height: 1rem;
+  border: none;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.PhoneInputCountryIcon--border {
+  border: none;
+  box-shadow: none;
+}

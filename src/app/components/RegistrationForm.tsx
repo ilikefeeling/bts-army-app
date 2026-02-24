@@ -6,6 +6,8 @@ import { auth, db } from "@/lib/firebase";
 import { sendSignInLinkToEmail } from "firebase/auth";
 import { collection, query, where, getDocs, doc, setDoc, onSnapshot } from "firebase/firestore";
 import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2, Loader2, AlertCircle, Send } from "lucide-react";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 interface RegistrationData {
     ownerName: string;
@@ -62,7 +64,7 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
     const validate = (): boolean => {
         const newErrors: Partial<RegistrationData> = {};
         if (!formData.ownerName.trim()) newErrors.ownerName = "Please enter your name.";
-        if (!formData.phone.trim()) newErrors.phone = "Please enter your phone number.";
+        if (!formData.phone || formData.phone.length < 5) newErrors.phone = "Please enter a valid phone number.";
         if (!formData.email.trim() || !formData.email.includes("@")) newErrors.email = "Please enter a valid email address.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -296,12 +298,14 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                             <label className="text-xs text-gray-400 mb-1 flex items-center gap-1">
                                 <Phone size={11} /> Phone Number *
                             </label>
-                            <input
-                                type="tel"
+                            <PhoneInput
+                                placeholder="Enter phone number"
                                 value={formData.phone}
-                                onChange={e => handleChange("phone", e.target.value)}
-                                placeholder="e.g. +82 10-0000-0000"
-                                className={inputClass("phone")}
+                                onChange={(value) => handleChange("phone", value || "")}
+                                defaultCountry="KR"
+                                international
+                                className={`w-full bg-black/40 border rounded-xl overflow-hidden focus-within:ring-1 transition-all text-sm phone-input-container ${errors.phone ? "border-red-500 focus-within:ring-red-500" : "border-white/10 focus-within:border-army-gold focus-within:ring-army-gold"
+                                    }`}
                             />
                             {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
                         </div>
