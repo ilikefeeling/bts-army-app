@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, query, where, getDocs, deleteDoc, doc, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getPrice, Tier } from "@/lib/numberLogic";
 import {
     Search,
     Download,
@@ -44,7 +45,8 @@ export default function AdminNumbersPage() {
         total: 0,
         vvip: 0,
         diamond: 0,
-        regular: 0
+        regular: 0,
+        revenue: 0
     });
 
     const fetchData = async () => {
@@ -60,6 +62,7 @@ export default function AdminNumbersPage() {
             const querySnapshot = await getDocs(q);
             const data: ArmyNumber[] = [];
             let vvip = 0, diamond = 0, regular = 0;
+            let estRevenue = 0;
 
             querySnapshot.forEach((doc) => {
                 const item = { id: doc.id, ...doc.data() } as ArmyNumber;
@@ -68,6 +71,8 @@ export default function AdminNumbersPage() {
                 if (item.tier === 'VVIP') vvip++;
                 else if (item.tier === 'DIAMOND') diamond++;
                 else regular++;
+
+                estRevenue += getPrice(item.tier as Tier);
             });
 
             // Sort client-side by purchasedAt (if exists) or ID
@@ -78,7 +83,8 @@ export default function AdminNumbersPage() {
                 total: data.length,
                 vvip,
                 diamond,
-                regular
+                regular,
+                revenue: estRevenue
             });
         } catch (err: any) {
             console.error("Error fetching admin data:", err);
@@ -192,7 +198,7 @@ export default function AdminNumbersPage() {
                     { label: "Total Recruits", value: stats.total, icon: Users, color: "text-blue-400" },
                     { label: "VVIP Elites", value: stats.vvip, icon: Crown, color: "text-purple-400" },
                     { label: "Diamond Rank", value: stats.diamond, icon: TrendingUp, color: "text-cyan-400" },
-                    { label: "Revenue (Est.)", value: `$${(numbers.length * 15).toLocaleString()}`, icon: CreditCard, color: "text-army-gold" },
+                    { label: "Revenue (Est.)", value: `$${stats.revenue.toLocaleString()}`, icon: CreditCard, color: "text-army-gold" },
                 ].map((stat, i) => (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -272,8 +278,8 @@ export default function AdminNumbersPage() {
                                             </td>
                                             <td className="py-5 px-6">
                                                 <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${user.tier === 'VVIP' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
-                                                        user.tier === 'DIAMOND' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                                            'bg-white/5 text-gray-400 border border-white/10'
+                                                    user.tier === 'DIAMOND' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                                        'bg-white/5 text-gray-400 border border-white/10'
                                                     }`}>
                                                     {user.tier}
                                                 </span>
