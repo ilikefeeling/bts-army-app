@@ -17,12 +17,12 @@ interface CertificateProps {
 }
 
 const TIER_COLORS: Record<string, string> = {
-    VVIP: "#a855f7",
-    DIAMOND: "#60a5fa",
-    BLACK: "#6b7280",
-    GOLD: "#eab308",
-    SILVER: "#9ca3af",
-    STANDARD: "#f3f4f6",
+    VVIP: "#9333ea",   // Purple 600
+    DIAMOND: "#2563eb", // Blue 600
+    BLACK: "#1f2937",   // Gray 800
+    GOLD: "#ca8a04",    // Yellow 600
+    SILVER: "#6b7280",  // Gray 500
+    STANDARD: "#374151", // Gray 700
 };
 
 export default function Certificate({ number, tier, issueDate, registrant }: CertificateProps) {
