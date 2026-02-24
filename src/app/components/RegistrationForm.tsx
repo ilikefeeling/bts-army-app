@@ -22,12 +22,13 @@ interface RegistrationFormProps {
     payerName?: string;
     isVerified?: boolean;
     onComplete: (data: RegistrationData) => void;
+    onVerified?: (email: string) => void;
 }
 
 // Modal step types
 type ModalStep = 'verify' | 'input' | 'review';
 
-export default function RegistrationForm({ number, tier, payerEmail = "", payerName = "", isVerified = false, onComplete }: RegistrationFormProps) {
+export default function RegistrationForm({ number, tier, payerEmail = "", payerName = "", isVerified = false, onComplete, onVerified }: RegistrationFormProps) {
     const [step, setStep] = useState<ModalStep>(isVerified ? 'input' : 'verify');
     const [formData, setFormData] = useState<RegistrationData>({
         ownerName: payerName,
@@ -45,14 +46,18 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                 if (docSnap.exists() && docSnap.data().status === 'verified') {
                     setGlobalError("✅ Verified successfully! Proceeding...");
                     setTimeout(() => {
-                        setStep('input');
+                        if (onVerified) {
+                            onVerified(formData.email.trim().toLowerCase());
+                        } else {
+                            setStep('input');
+                        }
                         setGlobalError("");
                     }, 1500);
                 }
             });
             return () => unsubscribe();
         }
-    }, [step, formData.email, globalError]);
+    }, [step, formData.email, globalError, onVerified]);
 
     const handleChange = (field: keyof RegistrationData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));

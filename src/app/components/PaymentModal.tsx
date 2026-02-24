@@ -38,6 +38,9 @@ export default function PaymentModal({ number, price, verifiedEmail: initialVeri
     const [error, setError] = useState("");
     const [issueDate, setIssueDate] = useState("");
 
+    // Track local verified state for cross-browser sync
+    const [isEmailVerified, setIsEmailVerified] = useState(!!initialVerifiedEmail);
+
     // Store payer details from PayPal as prefills for the form
     const [payerEmail, setPayerEmail] = useState(initialVerifiedEmail || "");
     const [payerName, setPayerName] = useState("");
@@ -127,6 +130,11 @@ export default function PaymentModal({ number, price, verifiedEmail: initialVeri
                             payerEmail={payerEmail}
                             onComplete={() => { }} // Not used in 'verify-only' mode
                             isVerified={false}
+                            onVerified={(email) => {
+                                setPayerEmail(email);
+                                setIsEmailVerified(true);
+                                setStep(price > 0 ? 'payment' : 'registration');
+                            }}
                         />
                     )}
 
@@ -197,7 +205,7 @@ export default function PaymentModal({ number, price, verifiedEmail: initialVeri
                                     tier={tier}
                                     payerEmail={payerEmail}
                                     payerName={payerName}
-                                    isVerified={!!initialVerifiedEmail}
+                                    isVerified={isEmailVerified}
                                     onComplete={handleRegistrationComplete}
                                 />
                             )}
