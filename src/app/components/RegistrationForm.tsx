@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, db } from "@/lib/firebase";
 import { sendSignInLinkToEmail } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc, onSnapshot } from "firebase/firestore";
 import { CheckCircle, User, Phone, Mail, ArrowRight, Edit2, Loader2, AlertCircle, Send } from "lucide-react";
 
 interface RegistrationData {
@@ -35,6 +35,22 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
     const [errors, setErrors] = useState<Partial<RegistrationData>>({});
     const [globalError, setGlobalError] = useState("");
     const [isValidating, setIsValidating] = useState(false);
+
+    useEffect(() => {
+        if (step === 'verify' && formData.email && globalError.includes("sent")) {
+            const trackingRef = doc(db, 'email_verifications', formData.email.trim().toLowerCase());
+            const unsubscribe = onSnapshot(trackingRef, (docSnap) => {
+                if (docSnap.exists() && docSnap.data().status === 'verified') {
+                    setGlobalError("✅ Verified successfully! Proceeding...");
+                    setTimeout(() => {
+                        setStep('input');
+                        setGlobalError("");
+                    }, 1500);
+                }
+            });
+            return () => unsubscribe();
+        }
+    }, [step, formData.email, globalError]);
 
     const handleChange = (field: keyof RegistrationData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -143,6 +159,14 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
             window.localStorage.setItem('emailForSignIn', formData.email.trim());
             window.localStorage.setItem('pendingArmyNumber', number);
 
+            // Create tracking document for cross-browser sync
+            try {
+                const trackingRef = doc(db, 'email_verifications', formData.email.trim().toLowerCase());
+                await setDoc(trackingRef, { status: 'pending', timestamp: Date.now() });
+            } catch (e) {
+                console.error("Tracking setup failed", e);
+            }
+
             setGlobalError("✅ Verification link sent! Please check your inbox.");
         } catch (err) {
             console.error("Failed to send link", err);
@@ -209,9 +233,15 @@ export default function RegistrationForm({ number, tier, payerEmail = "", payerN
                         )}
 
                         {globalError.includes("sent") && (
-                            <p className="text-xs text-center text-gray-500 mt-4 italic">
-                                Please click the link in your email to continue. You can close this window.
-                            </p>
+                            <div className="text-center mt-4">
+                                <p className="text-sm font-bold text-army-gold animate-pulse mb-1">
+                                    Waiting for verification...
+                                </p>
+                                <p className="text-xs text-gray-400 italic">
+                                    Please check your email and click the verification link.<br />
+                                    <span className="text-red-400 font-bold">DO NOT close this window.</span> It will automatically proceed when verified.
+                                </p>
+                            </div>
                         )}
                     </form>
                 </motion.div>

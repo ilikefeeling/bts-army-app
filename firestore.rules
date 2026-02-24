@@ -12,6 +12,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Email Verifications (for cross-browser syncing during magic link auth)
+    match /email_verifications/{emailId} {
+      allow read, write: if true;
+    }
+
     // Army Numbers: public read + write
     // - read: certificate lookup by email
     // - write: registration save after payment/claim
