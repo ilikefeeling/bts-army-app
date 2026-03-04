@@ -92,7 +92,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
             setStep(2);
             setError("");
         } else {
-            setError(language === 'ko' ? "정답이 아닙니다. 다시 입력해주세요." : "Incorrect answer. Please try again.");
+            setError(t.gate.step1_error);
         }
     };
 
@@ -139,7 +139,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
         const selectedIds = Array.from(selectedMembers);
 
         if (selectedIds.length === 0) {
-            setError("Please select at least one member.");
+            setError(t.gate.step2_error_select);
             return;
         }
 
@@ -165,7 +165,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
             onVerified();
         } else {
             // General error message. Detailed per-field error could be better but sticking to single error line for now.
-            setError(language === 'ko' ? "선택한 멤버의 실명(한글)을 정확히 입력해주세요." : "Please enter the correct Korean real name for the selected member(s).");
+            setError(t.gate.step2_error);
         }
     };
 
@@ -203,7 +203,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                                         </span>
                                         {eventData.event_date && (
                                             <span className="ml-auto text-xs text-purple-300 font-mono bg-army-purple/20 px-2 py-0.5 rounded-full">
-                                                {new Date(eventData.event_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                                {new Date(eventData.event_date).toLocaleDateString(language === 'ko' ? 'ko-KR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                                             </span>
                                         )}
                                     </div>
@@ -223,7 +223,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                                     {/* Divider */}
                                     <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                                        <span className="text-green-400 text-xs font-bold">이벤트 진행 중</span>
+                                        <span className="text-green-400 text-xs font-bold">{t.gate.event_active}</span>
                                     </div>
                                 </div>
                             </motion.div>
@@ -239,7 +239,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                             {t.intro.button}
                         </button>
                         <p className="text-sm text-gray-500 mt-4">
-                            {language === 'en' ? "Select 'KO' for Korean Mode" : "Select 'EN' for English Mode"}
+                            {t.intro.switch_to_ko}
                         </p>
                     </motion.div>
                 )}
@@ -294,9 +294,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                     >
                         <h2 className="text-2xl font-bold text-center mb-2">{t.gate.step2_title}</h2>
                         <p className="text-gray-400 text-center mb-6">
-                            {language === 'ko'
-                                ? "멤버를 선택하고 실명(한글)을 입력하세요."
-                                : "Select a member and enter their Real Name (Hangul)."}
+                            {t.gate.step2_guide}
                         </p>
 
                         <form onSubmit={handleMemberSubmit} className="space-y-4">
@@ -328,7 +326,7 @@ export default function IdentityGate({ onVerified }: IdentityGateProps) {
                                                         type="text"
                                                         value={memberInputs[member.id] || ""}
                                                         onChange={(e) => handleMemberInput(member.id, e.target.value)}
-                                                        placeholder="예: 홍길동"
+                                                        placeholder={t.gate.step2_placeholder}
                                                         className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:border-army-gold focus:outline-none text-sm text-white"
                                                     />
                                                 </motion.div>

@@ -316,13 +316,13 @@ export default function ArmyNumberSearch({ initialNumber, initialVerified, verif
                         onClick={() => setShowMeaningfulInput(!showMeaningfulInput)}
                         className="px-5 py-3 rounded-lg bg-black/40 border border-white/10 hover:border-army-purple hover:text-army-purple text-gray-400 text-sm font-medium transition-all flex items-center gap-2 shadow-sm"
                     >
-                        <span>📅</span> Meaningful Number
+                        <span>📅</span> {t.search.meaningful_number}
                     </button>
                     <button
                         onClick={generateSequential}
                         className="px-5 py-3 rounded-lg bg-black/40 border border-white/10 hover:border-army-purple hover:text-army-purple text-gray-400 text-sm font-medium transition-all flex items-center gap-2 shadow-sm"
                     >
-                        <span>✨</span> Sequential Issue
+                        <span>✨</span> {t.search.sequential_issue}
                     </button>
                 </div>
 
@@ -361,12 +361,12 @@ export default function ArmyNumberSearch({ initialNumber, initialVerified, verif
                             {result.status === 'available' ? (
                                 <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-bold border border-green-500/30">
                                     <Check size={12} strokeWidth={3} />
-                                    AVAILABLE
+                                    {t.search.label_available}
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30">
                                     <X size={12} strokeWidth={3} />
-                                    SOLD
+                                    {t.search.label_sold}
                                 </span>
                             )}
                         </div>
@@ -397,7 +397,7 @@ export default function ArmyNumberSearch({ initialNumber, initialVerified, verif
                         {result.status === 'available' ? (
                             <div className="flex flex-col items-center gap-4">
                                 <div className="text-center">
-                                    <div className="text-gray-400 text-sm mb-1">Issuance Fee</div>
+                                    <div className="text-gray-400 text-sm mb-1">{t.search.issuance_fee}</div>
                                     <div className="text-3xl font-bold text-white flex items-baseline gap-1">
                                         {result.price === 0 ? "FREE" : `$${result.price.toLocaleString()}`}
                                         {result.price > 0 && <span className="text-sm text-gray-500 font-normal">USD</span>}
@@ -407,17 +407,17 @@ export default function ArmyNumberSearch({ initialNumber, initialVerified, verif
                                     onClick={() => setShowPayment(true)}
                                     className="w-full max-w-sm py-4 bg-white text-black font-black text-lg rounded-xl hover:bg-gray-200 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                                 >
-                                    CLAIM THIS NUMBER
+                                    {t.search.button_claim}
                                 </button>
                             </div>
                         ) : (
                             <div className="text-center p-4 bg-black/40 rounded-xl border border-white/5">
-                                <div className="text-gray-400">This number is already owned by another Army.</div>
+                                <div className="text-gray-400">{t.search.owned_by_other}</div>
                                 <button
                                     onClick={() => {/* Implement View Profile later */ }}
                                     className="mt-2 text-army-purple hover:text-purple-400 text-sm font-bold underline decoration-2 underline-offset-4"
                                 >
-                                    View Owner Profile
+                                    {t.search.view_owner}
                                 </button>
                             </div>
                         )}

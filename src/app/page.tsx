@@ -8,8 +8,10 @@ import ArmyNumberSearch from "@/app/components/ArmyNumberSearch";
 import PromoBanner from "@/app/components/PromoBanner";
 import { FileText } from "lucide-react";
 import { Suspense } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function HomeContent() {
+  const { t, language } = useLanguage();
   const [isVerified, setIsVerified] = useState(false);
   const searchParams = useSearchParams();
 
@@ -43,7 +45,7 @@ function HomeContent() {
               className="mt-6 flex items-center justify-center gap-2 w-full max-w-md py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-bold transition-all"
             >
               <FileText size={18} />
-              내 번호 확인하기 (발급 내역 조회)
+              {t.common.check_my_number}
             </Link>
 
             <PromoBanner className="mt-8 max-w-lg w-full" />
@@ -59,10 +61,10 @@ function HomeContent() {
                   className="flex items-center gap-2 bg-army-gold/10 border border-army-gold/40 hover:bg-army-gold/20 px-4 py-2 rounded-lg text-sm text-army-gold font-bold transition-all"
                 >
                   <FileText size={15} />
-                  내 인증서
+                  {t.common.my_certificates}
                 </Link>
                 <div className="bg-army-purple/20 border border-army-purple/50 px-4 py-2 rounded-lg text-sm text-army-purple">
-                  Status: <span className="font-bold">VERIFIED</span>
+                  Status: <span className="font-bold">{t.common.status_verified}</span>
                 </div>
               </div>
             </div>
@@ -87,13 +89,13 @@ function HomeContent() {
       </div>
 
       <footer className="absolute bottom-4 text-center text-gray-600 text-xs z-10">
-        © 2026 BTS Army Number. Unofficial Fan Project.
+        © 2026 BTS Army Number. {t.footer.unofficial_project}
         {" · "}
         <Link href="/my-certificates" className="hover:text-army-gold underline transition-colors">
-          내 인증서 조회
+          {t.footer.view_my_cert}
         </Link>
         <br />
-        &quot;Dokdo is Korean Territory&quot;
+        &quot;{t.common.dokdo_statement}&quot;
       </footer>
     </div>
   );
