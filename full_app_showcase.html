@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTS Army Number - Full App Showcase</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap">
+    <style>
+        :root {
+            --army-purple: #9d4edd;
+            --army-gold: #ff9e00;
+            --army-dark: #0c0014;
+            --army-gray: #1a1a2e;
+        }
+
+        body {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            background-color: var(--army-dark);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 60px 20px;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(157, 78, 221, 0.2) 0%, transparent 70%);
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 0;
+            background: linear-gradient(to right, var(--army-purple), var(--army-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .gallery {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            background: var(--army-gray);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(157, 78, 221, 0.2);
+            border-color: rgba(157, 78, 221, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            color: var(--army-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .shot-container {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .shot {
+            width: 100%;
+            display: block;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--army-purple);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .video-box {
+            grid-column: 1 / -1;
+            margin-top: 40px;
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), rgba(255, 158, 0, 0.1));
+            border: 1px solid var(--army-purple);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-live {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 32px;
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-live:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>APP FULL SHOWCASE</h1>
+        <p class="subtitle">BTS Army Number Project Comprehensive Preview</p>
+    </header>
+
+    <div class="gallery">
+        <!-- Step 1: Landing -->
+        <div class="card">
+            <h2><span class="tag">Stage 01</span> Landing & Entry</h2>
+            <p>다국어(EN/KO) 스위처와 이벤트 배너가 포함된 고급스러운 진입 화면입니다.</p>
+            <div class="shot-container">
+                <img src="C:/Users/PC2301/.gemini/antigravity/brain/cc8876e3-74e6-473d-8bff-46743e4b7d90/showcase_01_landing_1772620851389.png"
+                    class="shot" alt="Landing Page">
+            </div>
+        </div>
+
+        <!-- Step 2: Verification -->
+        <div class="card">
+            <h2><span class="tag">Stage 02</span> Identity Verification</h2>
+            <p>신원 확인을 위한 문구 입력 및 멤버 선택 단계입니다. (다국어 완벽 지원)</p>
+            <div class="shot-container">
+                <img src="C:/Users/PC2301/.gemini/antigravity/brain/cc8876e3-74e6-473d-8bff-46743e4b7d90/showcase_02_gate_step2_1772621072220.png"
+                    class="shot" alt="Verification Gate">
+            </div>
+        </div>
+
+        <!-- Step 3: Dashboard -->
+        <div class="card">
+            <h2><span class="tag">Stage 03</span> Command Center</h2>
+            <p>인증 완료 후 진입하는 대시보드입니다. 실시간 번호 검색 및 필터링 기능이 제공됩니다.</p>
+            <div class="shot-container">
+                <img src="C:/Users/PC2301/.gemini/antigravity/brain/cc8876e3-74e6-473d-8bff-46743e4b7d90/showcase_03_dashboard_1772621034596.png"
+                    class="shot" alt="Dashboard">
+            </div>
+        </div>
+
+        <!-- Step 4: Certificates -->
+        <div class="card">
+            <h2><span class="tag">Stage 04</span> My Certificates</h2>
+            <p>내가 발급받은 번호들을 한눈에 확인하고 인증서를 관리할 수 있는 페이지입니다.</p>
+            <div class="shot-container">
+                <img src="C:/Users/PC2301/.gemini/antigravity/brain/cc8876e3-74e6-473d-8bff-46743e4b7d90/showcase_04_certs_1772621036366.png"
+                    class="shot" alt="Certificates">
+            </div>
+        </div>
+
+        <!-- Demo Video -->
+        <div class="card video-box">
+            <h2><span class="tag">Live Demo</span> Functional Walkthrough</h2>
+            <p>전체적인 앱 작동 흐름과 다국어 전환 기능을 시연하는 영상입니다.</p>
+            <div class="shot-container" style="max-width: 800px; margin: 0 auto;">
+                <video controls width="100%"
+                    poster="C:/Users/PC2301/.gemini/antigravity/brain/cc8876e3-74e6-473d-8bff-46743e4b7d90/showcase_01_landing_1772620851389.png">
+                    <source
+                        src="C:/Users/PC2301/.gemini/antigravity/brain/cc8876e3-74e6-473d-8bff-46743e4b7d90/app_gallery_final_1772620843908.webp"
+                        type="image/webp">
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This design represents the current production state as of 2026.</p>
+        <a href="https://btsarmy.app" class="btn-live">Visit Live Site</a>
+        <p style="margin-top: 20px;">💜 Dedicated to BTS ARMY Everywhere 💜</p>
+    </div>
+</body>
+
+</html>
